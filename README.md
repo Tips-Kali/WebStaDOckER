@@ -48,10 +48,19 @@ Installation
 --------------
 
 ```sh
-bash start.sh
+mkdir -p ~/mon_projet && cd ~/mon_projet
+git clone https://github.com/WilliamWolface/WebStaDOckER.git
 ```
-* Copier le fichier config.sh.dist en config.sh
+
+* Copiez le fichier config.sh.dist en config.sh
 * Configurez ce nouveau fichier selon vos besoins
+* Lancez la commande suivante :
+
+```sh
+bash ~/mon_projet/WebStaDOckER/install.sh
+```
+
+* ...et laissez-vous guider ;)
 
 Bonus
 -----------
