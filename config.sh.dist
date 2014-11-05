@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Identité
+wsd_identity_name="Example Example";
+wsd_identity_email="example@example.com";
+
+# Git
+wsd_git_user="example";
+wsd_git_password="example";
+wsd_git_server="gitlab.example.com";
+wsd_git_port="example";
+wsd_git_namespace="example";
+wsd_git_project="example";
+wsd_git_clone="http://${wsd_git_user}:${wsd_git_password}@${wsd_git_server}:${wsd_git_port}/${wsd_git_namespace}/${wsd_git_project}.git"; # via HTTP
+#wsd_git_clone="${wsd_git_user}@${wsd_git_server}:${wsd_git_namespace}/${wsd_git_project}.git"; # via SSH
+
+# System
+wsd_user="dev";
+
+# Project
+wsd_project_name=${git_project};
+wsd_project_domain="${wsd_project_name}.com";
+wsd_project_environment="production";
+wsd_project_environment_domains="${wsd_project_domain} test.${wsd_project_domain} staging.${wsd_project_domain}";
+
+# Postgres SQL
+wsd_postgres_user=${wsd_user};
+wsd_postgres_password="example";
+wsd_postgres_database_name="${wsd_project_name}";

@@ -1,0 +1,21 @@
+# Répertoire de projet d'IDE
+nbproject
+*.project
+*.settings
+
+# Fichiers fantôme
+*._*
+*.~lock.*
+*.buildpath
+*.DS_Store
+*~
+*.thumb
+*.tmp
+*.swp
+*.swo
+*.idea
+
+# Fichier de configuration
+config.sh
+library/dev
+dockerfiles/postgres/JOIN/data/dump/*
