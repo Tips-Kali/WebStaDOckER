@@ -36,11 +36,11 @@ sudo docker tag sylvainlasnier/memcached localhost:5000/sylvainlasnier/memcached
 sudo docker push localhost:5000/memcached;
 
 #Exemple de récupéaration locale
-docker pull localhost:5000/jessie;
-docker pull localhost:5000/wheezy;
-docker pull localhost:5000/arch;
-docker pull localhost:5000/postgres;
-docker pull localhost:5000/nginx;
-docker pull localhost:5000/nodejs;
-docker pull localhost:5000/phppgadmin;
-docker pull localhost:5000/memcached;
+sudo docker pull localhost:5000/jessie;
+sudo docker pull localhost:5000/wheezy;
+sudo docker pull localhost:5000/arch;
+sudo docker pull localhost:5000/postgres;
+sudo docker pull localhost:5000/nginx;
+sudo docker pull localhost:5000/nodejs;
+sudo docker pull localhost:5000/phppgadmin;
+sudo docker pull localhost:5000/memcached;
