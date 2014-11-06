@@ -19,3 +19,4 @@ nbproject
 config.sh
 library/dev
 dockerfiles/postgres/JOIN/data/dump/*.pgsql
+logs/*.log

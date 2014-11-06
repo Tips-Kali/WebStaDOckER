@@ -57,10 +57,17 @@ git clone https://github.com/WilliamWolface/WebStaDOckER.git
 * Lancez la commande suivante :
 
 ```sh
-bash ~/mon_projet/WebStaDOckER/install.sh
+bash ~/mon_projet/WebStaDOckER/wsd.sh install
 ```
 
 * ...et laissez-vous guider ;)
+
+Relancer
+--------------
+
+```sh
+bash ~/mon_projet/WebStaDOckER/wsd.sh restart
+```
 
 Bonus
 -----------
