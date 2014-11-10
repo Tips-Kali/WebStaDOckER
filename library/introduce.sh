@@ -23,49 +23,36 @@ show "INSTALLATION DE DOCKER";
 sudo apt-get -y update && sudo apt-get -y upgrade;
 
 # Installation de Docker
-# Todo : ne plus poser la question, on doit savoir automatiquement si c'est wheezy ou jessie
-PS3='Quelle est la version de votre OS ?'
-options=("Debian 7 - Wheezy" "Debian 8 - Jessie" "Quitter")
-select opt in "${options[@]}"
-do
-    case $opt in
-        "Debian 7 - Wheezy")
-            echo '[ATTENTION] Execution en tant que root :';
-            su -l root -c "echo 'deb http://http.debian.net/debian wheezy-backports main' >> /etc/apt/sources.list;";
-            sudo apt-get -y install -t wheezy-backports linux-image-amd64 curl;
-            curl -sSL https://get.docker.com/ | /bin/sh;
-            # Todo : vérifier et installer le kernel > 3.8
-            #uname -mrns
-            #wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.16.tar.xz
-            #wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.16.tar.sign
-            #tar -xvf linux-3.16.tar
-            #gpg --verify linux-3.16.tar.sign
-            #gpg --recv-keys  00411886
-            #gpg --verify linux-3.16.tar.sign
-            #sudo apt-get -y install libncurses5-dev fakeroot kernel-package
-            #cd linux-3.16/
-            #cp /boot/config-'uname -r' .config
-            #ls -al
-            #make menuconfig
-            #make-kpkg clean
-            #cat /proc/cpuinfo
-            #export CONCURRENCY_LEVEL=3
-            #fakeroot make-kpkg --append-to-version "-tecmintkernel" --revision "1" --initrd kernel_image kernel_headers
-            break;
-            ;;
-        "Debian 8 - Jessie")
-            sudo apt-get -y install docker.io;
-            break;
-            ;;
-        "Quitter")
-            exit;
-            ;;
-        *) echo invalid option;;
-    esac
-done
+if [[ $(cat /etc/debian_version | cut -d/ -f1) == "jessie" ]]; then
+    if [[ $(version_compare "3.16" "$(uname -r|cut -d\- -f1| tr -d '[A-Z][a-z]')") != "inferieur" ]]; then
+        echo "Version du kernel : ok";
+        sudo apt-get -y install docker.io;
+    else
+        echo "Oups, votre kernel n'est pas à jour (3.16 minimum, vous êtes en $(uname -r|cut -d\- -f1| tr -d '[A-Z][a-z]'))";
+        lsb_release -a;
+        cat /proc/version;
+        exit;
+    fi
+elif [[ $(cat /etc/debian_version | cut -d/ -f1) == "wheezy" ]]; then
+    if [[ $(version_compare "3.16" "$(uname -r|cut -d\- -f1| tr -d '[A-Z][a-z]')") != "inferieur" ]]; then
+        echo "Version du kernel : ok";
+        echo '[ATTENTION] Execution en tant que root :';
+        su -l root -c "echo 'deb http://http.debian.net/debian wheezy-backports main' >> /etc/apt/sources.list;";
+        sudo apt-get -y install -t wheezy-backports linux-image-amd64 curl;
+        curl -sSL https://get.docker.com/ | /bin/sh;
+    else
+        echo "Oups, votre kernel n'est pas à jour (3.16 minimum, vous êtes en $(uname -r|cut -d\- -f1| tr -d '[A-Z][a-z]'))";
+        lsb_release -a;
+        cat /proc/version;
+        exit;
+    fi
+else
+    echo "Votre version debian est trop ancienne ( Wheezy ou Jessie sont requis ) !";
+fi
 
 # Todo : optimisation de la mémoire et du swap : https://docs.docker.com/installation/ubuntulinux/#memory-and-swap-accounting
 
+# Suppression image par défaut
 sudo docker rmi hello-world;
 
 # Installation de Glance
@@ -83,3 +70,5 @@ if [ ${wsd_project_environment} == "development" ]; then
     # Todo : si en DEV : proposer d'installer : java, phpstorm, smartgit...
     echo 'java, phpstorm, smartgit...';
 fi
+
+# Installation de NeoVIM
