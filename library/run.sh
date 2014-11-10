@@ -21,18 +21,6 @@ sudo docker run \
     -it \
     -d wsd_postgres && sudo docker logs webstack_postgres_1;
 
-# Restore backup from dbexport.pgsql (fichier précédemment importé dans l'image)
-sudo docker exec \
-    -it \
-    webstack_postgres_1 \
-    /bin/bash -c "exec psql -U ${wsd_postgres_user} ${wsd_postgres_database_name} < /wsd_postgres/dbexport.pgsql";
-
-# Liste des rôles
-sudo docker exec \
-    -it \
-    webstack_postgres_1 \
-    /bin/bash -c "exec psql -X -U ${wsd_postgres_user} ${wsd_postgres_database_name} --set ON_ERROR_STOP=on -c 'SELECT * FROM pg_roles;'";
-
 # phpPgAdmin
 sudo docker run \
     --name webstack_phppgadmin_1 \

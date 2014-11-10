@@ -27,3 +27,5 @@ dockerfiles/nginx/LINK/htpasswds/*/htpasswd
 dockerfiles/nodejs_bower_grunt/JOIN/package.json
 dockerfiles/nginx/LINK/sites-enabled/*
 dockerfiles/nginx/LINK/www/*
+dockerfiles/postgres/JOIN/data/certs/*
+*_modified.*
