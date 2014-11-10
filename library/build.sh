@@ -63,13 +63,19 @@ cd ${dockerDir}dockerfiles/nodejs_bower_grunt && sudo docker build -t wsd_nodejs
 subShow "Image : Postgres SQL";
 
 # PostgreSQL
-cd ${dockerDir}dockerfiles/postgres && sudo docker build -t wsd_postgres .;
+cd ${dockerDir}dockerfiles/postgres/JOIN/data/certs;
+openssl req -new -text -out server.req;
+openssl rsa -in privkey.pem -out server.key;
+rm privkey.pem;
+openssl req -x509 -in server.req -text -key server.key -out server.crt;
+chmod og-rwx server.key;
 sed -i "s/wsd_postgres_database_name/${wsd_postgres_database_name}/" ${dockerDir}dockerfiles/postgres/JOIN/docker-entrypoint-initdb.d/1_create_database.sh;
 sed -i "s/wsd_postgres_user/${wsd_postgres_user}/" ${dockerDir}dockerfiles/postgres/JOIN/docker-entrypoint-initdb.d/1_create_database.sh;
 sed -i "s/wsd_postgres_password/${wsd_postgres_password}/" ${dockerDir}dockerfiles/postgres/JOIN/docker-entrypoint-initdb.d/1_create_database.sh;
 if [ ${wsd_project_environment} == "development" ]; then
     echo "127.0.0.1   phppgadmin.${wsd_project_domain}" >> /etc/hosts;
 fi
+cd ${dockerDir}dockerfiles/postgres && sudo docker build -t wsd_postgres .;
 
 show "RECUPERATION DES IMAGES COMPILEES";
 
