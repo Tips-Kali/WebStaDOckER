@@ -10,6 +10,9 @@ sudo docker pull dockerfile/nodejs;
 sudo docker pull maxexcloo/phppgadmin;
 sudo docker pull sylvainlasnier/memcached;
 
+# Création du container de depôts locaux
+sudo docker run -p 5000:5000 registry
+
 # Ajout en local
 sudo docker tag debian:jessie localhost:5000/debian:jessie;
 sudo docker push localhost:5000/jessie;

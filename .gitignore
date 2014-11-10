@@ -20,3 +20,10 @@ config.sh
 library/dev
 dockerfiles/postgres/JOIN/data/dump/*.pgsql
 logs/*.log
+
+# Fichiers après construction des containers
+dockerfiles/nginx/LINK/log/*.log
+dockerfiles/nginx/LINK/htpasswds/*/htpasswd
+dockerfiles/nodejs_bower_grunt/JOIN/package.json
+dockerfiles/nginx/LINK/sites-enabled/*
+dockerfiles/nginx/LINK/www/*
