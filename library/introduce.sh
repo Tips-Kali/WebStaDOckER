@@ -72,3 +72,36 @@ if [ ${wsd_project_environment} == "development" ]; then
 fi
 
 # Installation de NeoVIM
+echo "Installer NeoVIM ?" && read REPLY && if [ "$REPLY" == "y" ]; then
+    cd ~;
+    sudo apt-get install libtool autoconf automake cmake libncurses5-dev g++ pkg-config;
+    wget https://github.com/neovim/neovim/archive/master.zip;
+    unzip master.zip;
+    cd neovim-master;
+    make;
+    cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr/;
+    sudo make install;
+    cd ~;
+    rm -rf neovim-master;
+    rm -f master.zip;
+    mkdir -p ~/.nvim/bundle ~/.nvim/autoload;
+    touch ~/.nvimrc;
+
+    # Plugin Pathogen
+    curl -LSso ~/.nvim/autoload/pathogen.vim https://tpo.pe/pathogen.vim;
+    echo 'execute pathogen#infect()' >> ~/.nvimrc;
+    echo 'syntax on' >> ~/.nvimrc;
+    echo 'filetype plugin indent on' >> ~/.nvimrc;
+
+    # Plugin NERD Tree
+    cd ~/.nvim/bundle && git clone https://github.com/scrooloose/nerdtree.git;
+    echo 'autocmd VimEnter * NERDTree' >> ~/.nvimrc;
+
+    # Plugin VIM Markdown
+    cd ~/.nvim/bundle && git clone https://github.com/plasticboy/vim-markdown.git;
+
+    # ColorScheme
+    cd ~/.nvim/bundle && git clone https://github.com/morhetz/gruvbox.git;
+    echo 'colorscheme gruvbox' >> ~/.nvimrc;
+   
+fi
