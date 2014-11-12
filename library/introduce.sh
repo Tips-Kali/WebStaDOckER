@@ -103,5 +103,8 @@ echo "Installer NeoVIM ?" && read REPLY && if [ "$REPLY" == "y" ]; then
     # ColorScheme
     cd ~/.nvim/bundle && git clone https://github.com/morhetz/gruvbox.git;
     echo 'colorscheme gruvbox' >> ~/.nvimrc;
+
+    # Désinstallation de nano
+    sudo apt-get -y remove nano vim;
    
 fi
