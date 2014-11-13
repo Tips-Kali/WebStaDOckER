@@ -21,6 +21,9 @@ sudo docker run \
     -it \
     -d wsd_postgres && sudo docker logs webstack_postgres_1;
 
+echo "Attend que Postgres se prépare...";
+sleep 30;
+
 # Script après installation
 sudo docker exec \
     -it  \
