@@ -80,6 +80,8 @@ fi
 rm -f ${dockerDir}dockerfiles/postgres/JOIN/data/dump/manually_modified.sh;
 cp ${dockerDir}dockerfiles/postgres/JOIN/data/dump/manually.sh ${dockerDir}dockerfiles/postgres/JOIN/data/dump/manually_modified.sh;
 sed -i "s/wsd_postgres_database_name/${wsd_postgres_database_name}/" ${dockerDir}dockerfiles/postgres/JOIN/data/dump/manually_modified.sh;
+sed -i "s/wsd_postgres_user/${wsd_postgres_user}/" ${dockerDir}dockerfiles/postgres/JOIN/data/dump/manually_modified.sh;
+sed -i "s/wsd_postgres_password/${wsd_postgres_password}/" ${dockerDir}dockerfiles/postgres/JOIN/data/dump/manually_modified.sh;
 cd ${dockerDir}dockerfiles/postgres && sudo docker build -t wsd_postgres .;
 
 show "RECUPERATION DES IMAGES COMPILEES";
