@@ -73,7 +73,11 @@ if [ ${wsd_project_environment} == "development" ]; then
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886;
         sudo apt-get update -y;
         sudo apt-get -y install oracle-java8-installer;
-        # java, phpstorm, smartgit...
+        # phpstorm, smartgit...
+    fi
+
+    echo "Installer PgAdmin 3 ?" && read REPLY && if [ "$REPLY" == "y" ]; then
+        sudo apt-get install -y pgadmin3;
     fi
 fi
 
