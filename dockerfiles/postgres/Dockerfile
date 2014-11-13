@@ -22,7 +22,5 @@ COPY JOIN/docker-entrypoint-initdb.d/* /docker-entrypoint-initdb.d/
 RUN chown -R postgres:postgres /var/lib/postgresql/data
 RUN chmod -R 0777 /var/lib/postgresql/data
 
-RUN touch /var/lib/postgresql/data/postgresql.auto.conf
-
 # Creation des utilisateurs et de la base de donnée
 RUN /bin/bash /wsd_postgres/create_database_modified.sh

@@ -21,6 +21,12 @@ sudo docker run \
     -it \
     -d wsd_postgres && sudo docker logs webstack_postgres_1;
 
+# Script après installation
+sudo docker exec \
+    -it  \
+    webstack_postgres_1  \
+    /bin/bash /wsd_postgres/manually_modified.sh;
+
 # phpPgAdmin
 sudo docker run \
     --name webstack_phppgadmin_1 \

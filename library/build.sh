@@ -77,6 +77,9 @@ sed -i "s/wsd_postgres_password/${wsd_postgres_password}/" ${dockerDir}dockerfil
 if [ ${wsd_project_environment} == "development" ]; then
     echo "127.0.0.1   phppgadmin.${wsd_project_domain}" >> /etc/hosts;
 fi
+rm -f ${dockerDir}dockerfiles/postgres/JOIN/data/dump/manually_modified.sh;
+cp ${dockerDir}dockerfiles/postgres/JOIN/data/dump/manually.sh ${dockerDir}dockerfiles/postgres/JOIN/data/dump/manually_modified.sh;
+sed -i "s/wsd_postgres_database_name/${wsd_postgres_database_name}/" ${dockerDir}dockerfiles/postgres/JOIN/data/dump/manually_modified.sh;
 cd ${dockerDir}dockerfiles/postgres && sudo docker build -t wsd_postgres .;
 
 show "RECUPERATION DES IMAGES COMPILEES";
