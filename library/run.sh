@@ -19,16 +19,19 @@ sudo docker run \
 sudo docker run \
     --name webstack_postgres_1 \
     -it \
+    -v ${dockerDir}dockerfiles/postgres/LINK/data:/var/lib/postgresql/data:rw \
     -d wsd_postgres && sudo docker logs webstack_postgres_1;
 
-echo "Attend que Postgres se prépare...";
-sleep 30;
+if [${wsd_action} == "install"]; then
+    echo "Attend que Postgres se prépare...";
+    sleep 30;
 
-# Script après installation
-sudo docker exec \
-    -it  \
-    webstack_postgres_1  \
-    /bin/bash /wsd_postgres/manually_modified.sh;
+    # Après installation, première configuration de la base de donnée
+    sudo docker exec \
+        -it  \
+        webstack_postgres_1  \
+        /bin/bash /wsd_postgres/manually_modified.sh;
+fi
 
 # phpPgAdmin
 sudo docker run \

@@ -29,3 +29,4 @@ dockerfiles/nginx/LINK/sites-enabled/*
 dockerfiles/nginx/LINK/www/*
 dockerfiles/postgres/JOIN/data/certs/*
 *_modified.*
+dockerfiles/postgres/LINK/data/*
