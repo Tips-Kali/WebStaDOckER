@@ -55,6 +55,8 @@ git clone https://github.com/WilliamWolface/WebStaDOckER.git
 Installation
 --------------
 
+Lisez le [wiki](https://github.com/WilliamWolface/WebStaDOckER/blob/master/library/wiki.md) !
+
 * Copiez le fichier config.sh.dist en config.sh
 * Configurez ce nouveau fichier selon vos besoins
 * Lancez la commande suivante :

@@ -13,8 +13,8 @@ git fsck;
 
 # Droits générique
 sudo chown -R ${wsd_user}:http ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}/; # Todo : récupérer le group de l'user ${wsd_user} dynamiquement
-find ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}/ -type d -exec chmod 755 {} +;
-find ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}/ -type f -exec chmod 644 {} +;
+sudo find ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}/ -type d -exec chmod 755 {} +;
+sudo find ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}/ -type f -exec chmod 644 {} +;
 
 show "INITIALISE";
 
@@ -92,7 +92,7 @@ subShow "Image : phpPgAdmin";
 sudo docker pull maxexcloo/phppgadmin; # phpPgAdmin
 
 subShow "Image : Memcached";
-sudo docker pull sylvainlasnier/memcached; # Memcached
+cd ${dockerDir}dockerfiles/memcached && sudo docker build -t wsd_memcached .;
 
 # Piwik
 

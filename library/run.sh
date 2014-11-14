@@ -68,5 +68,11 @@ sudo docker run \
     -v ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}:/project:rw \
     wsd_nodejs_bower_grunt;
 
+# Memcached
+sudo docker run \
+    --name webstack_memcached_1 \
+    -p 11211:11211 \
+    -d wsd_memcached;
+
 # Confirmation de création des conteneurs
 sudo docker ps;
