@@ -8,10 +8,10 @@ Technologies
 
 Si vous voulez un serveur avec ces technologies :
 
-* [postgresql] - PostgreSQL + PostGis
-* [memcache] - Memcache
+* [postgresql] - PostgreSQL + PostGis ( avec dump de votre .pgsql )
+* [memcache] - Memcache (à venir)
 * [nodejs] - NodeJS : Grunt + Bower
-* [varnish] - Varnish
+* [varnish] - Varnish (à venir)
 
 **En environnement : production**
 
@@ -19,20 +19,20 @@ Si vous voulez un serveur avec ces technologies :
 
 **En environnement : development et staging**
 
-* [zendserverdevelopperedition] - ZendServer7 Developper Edition (NGINX php 5.5)
+* [zendserverdevelopperedition] - ZendServer7 Developper Edition (NGINX php 5.5) (à venir)
 
 En Option
 -----------
 
-* [piwik] - Piwik
-* [sugarcrm] - SugarCRM
-* [zimbra] - Zimbra
+* [piwik] - Piwik (à venir)
+* [sugarcrm] - SugarCRM (à venir)
+* [zimbra] - Zimbra (à venir)
 
 Options futures
 -----------
 
-* [redmine] - Redmine
-* [gitlab] - Gitlab
+* [redmine] - Redmine (à venir)
+* [gitlab] - Gitlab (à venir)
 
 Requis
 =========
@@ -42,15 +42,18 @@ Requis
 Version
 ----
 
-1.0
+1.1
 
-Installation
+Récupération
 --------------
 
 ```sh
 mkdir -p ~/mon_projet && cd ~/mon_projet
 git clone https://github.com/WilliamWolface/WebStaDOckER.git
 ```
+
+Installation
+--------------
 
 * Copiez le fichier config.sh.dist en config.sh
 * Configurez ce nouveau fichier selon vos besoins
@@ -62,7 +65,7 @@ bash ~/mon_projet/WebStaDOckER/wsd.sh install
 
 * ...et laissez-vous guider ;)
 
-Relancer
+(Re)Lancer
 --------------
 
 ```sh
@@ -77,9 +80,10 @@ Bonus
 Si vous êtes en environnement de développement, le script vous proposera d'installer sur la machine hôte :
 
 * [java] - java
-* [phpstorm] - phpStorm
-* [smartgit] - smartGit
+* [phpstorm] - phpStorm (à venir)
+* [smartgit] - smartGit (à venir)
 * [pgadmin] - PG Admin 3
+* [neovim] - NeoVIM ( avec quelques plugins pratiques )
 
 [nginx]:http://nginx.org/
 [zendserverdevelopperedition]:http://www.zend.com/en/products/server/editions-development
@@ -96,3 +100,4 @@ Si vous êtes en environnement de développement, le script vous proposera d'ins
 [redmine]:http://www.redmine.org/
 [gitlab]:https://about.gitlab.com/
 [pgadmin]:http://www.pgadmin.org/
+[neovim]:http://neovim.org/
