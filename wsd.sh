@@ -16,6 +16,8 @@ if [[ ${wsd_action} == "install" ]]; then
     source "${dockerDir}library/install.sh";
 elif [[ ${wsd_action} == "restart" ]]; then
     source "${dockerDir}library/restart.sh";
+elif [[ ${wsd_action} == "rebuild" ]]; then
+    source "${dockerDir}library/rebuild.sh";
 else
     wsd_sous_action=${2};
     if [[ ${wsd_action} == "postgres" ]]; then
