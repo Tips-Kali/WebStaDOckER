@@ -7,7 +7,7 @@ En Général
 Dans le repertoire "/dockerfiles" se trouve donc toutes les applications (composer, memcached, nginx, nodejs-bower/grunt, phpfpm, postgres....)
 Dans chaque répertoire d'application, se trouve le Dockerfile ainsi que 2 répertoires : JOIN et LINK
 
-- JOIN : Vous pouvez adapter le contenu de ces répertoires AVANT de lancer l'installation !
+- JOIN : Vous pouvez adapter le contenu de ce répertoire AVANT de lancer l'installation !
 - LINK : Le contenu de ce répertoire peut être modifié à tout moment (sous réserve que l'application en question le permette, ou restart de celle-ci)
 
 Postgres

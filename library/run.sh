@@ -22,7 +22,7 @@ sudo docker run \
     -v ${dockerDir}dockerfiles/postgres/LINK/data:/var/lib/postgresql/data:rw \
     -d wsd_postgres && sudo docker logs webstack_postgres_1;
 
-if [${wsd_action} == "install"]; then
+if [[ ${wsd_action} == "install" ]]; then
     echo "Attend que Postgres se prépare...";
     sleep 30;
 
@@ -60,13 +60,43 @@ sudo docker run \
     wsd_composer install; #--ignore-platform-reqs
 
 # Bower & Grunt
-sudo docker run \
-    -i \
-    --rm \
-    -e "environment=production" \
-    -e "action=install" \
-    -v ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}:/project:rw \
-    wsd_nodejs_bower_grunt;
+if [[ ${wsd_action} == "install" ]]; then
+    if [ ${wsd_project_environment} == "development" ]; then
+        sudo docker run \
+            --name webstack_nodejs_bower_grunt_1 \
+            -i \
+            -e "environment=development" \
+            -e "action=install" \
+            -v ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}:/project:rw \
+            -d wsd_nodejs_bower_grunt;
+    else
+        sudo docker run \
+            -i \
+            --rm \
+            -e "environment=production" \
+            -e "action=install" \
+            -v ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}:/project:rw \
+            wsd_nodejs_bower_grunt;
+    fi
+else
+  if [ ${wsd_project_environment} == "development" ]; then
+        sudo docker run \
+            --name webstack_nodejs_bower_grunt_1 \
+            -i \
+            -e "environment=development" \
+            -e "action=update" \
+            -v ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}:/project:rw \
+            -d wsd_nodejs_bower_grunt;
+    else
+        sudo docker run \
+            -i \
+            --rm \
+            -e "environment=production" \
+            -e "action=update" \
+            -v ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}:/project:rw \
+            wsd_nodejs_bower_grunt;
+    fi
+fi
 
 # Memcached
 sudo docker run \

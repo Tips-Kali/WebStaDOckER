@@ -17,5 +17,12 @@ if [[ ${wsd_action} == "install" ]]; then
 elif [[ ${wsd_action} == "restart" ]]; then
     source "${dockerDir}library/restart.sh";
 else
-    echo 'Commande introuvable, essayez "/wsd.sh install" ou "/wsd.sh restart"';
+    wsd_sous_action=${2};
+    if [[ ${wsd_action} == "postgres" ]]; then
+        if [[ ${wsd_sous_action} == "stop" ]]; then
+            echo "Arrêt de Postgres...";
+        fi
+    else
+        echo 'Commande introuvable, essayez "/wsd.sh install" ou "/wsd.sh restart"';
+    fi
 fi
