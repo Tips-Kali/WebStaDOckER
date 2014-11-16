@@ -42,14 +42,13 @@ Requis
 Version
 ----
 
-1.1
+1.2
 
 Récupération
 --------------
 
 ```sh
-mkdir -p ~/mon_projet && cd ~/mon_projet
-git clone https://github.com/WilliamWolface/WebStaDOckER.git
+mkdir -p ~/mon_projet && cd ~/mon_projet && git clone https://github.com/WilliamWolface/WebStaDOckER.git
 ```
 
 Installation
@@ -86,6 +85,7 @@ Si vous êtes en environnement de développement, le script vous proposera d'ins
 * [smartgit] - smartGit (à venir)
 * [pgadmin] - PG Admin 3
 * [neovim] - NeoVIM ( avec quelques plugins pratiques )
+* [glances] - Glances
 
 [nginx]:http://nginx.org/
 [zendserverdevelopperedition]:http://www.zend.com/en/products/server/editions-development
@@ -103,3 +103,4 @@ Si vous êtes en environnement de développement, le script vous proposera d'ins
 [gitlab]:https://about.gitlab.com/
 [pgadmin]:http://www.pgadmin.org/
 [neovim]:http://neovim.org/
+[glances]:https://github.com/nicolargo/glances
