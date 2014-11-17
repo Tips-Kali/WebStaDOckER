@@ -8,13 +8,6 @@ sudo docker stop $(sudo docker ps -a -q) && sudo docker rm $(sudo docker ps -a -
 # Todo : limiter la conso RAM/CPU des container : https://docs.docker.com/installation/ubuntulinux/#memory-and-swap-accounting
 # Todo : voir le démarrage automatique des containers : https://docs.docker.com/articles/host_integration/
 
-# Crée le container : Lancement de php-fpm sur le port 9000
-sudo docker run \
-    --name webstack_php_1 \
-    -p 9000:9000 \
-    -v ${dockerDir}dockerfiles/nginx/LINK/www:/var/www:rw \
-    -d wsd_phpfpm && sudo docker logs webstack_php_1;
-
 # PostgreSQL
 sudo docker run \
     --name webstack_postgres_1 \
@@ -41,6 +34,21 @@ sudo docker run \
     -e "VIRTUAL_HOST=phppgadmin.${wsd_project_domain}" \
     -d maxexcloo/phppgadmin && sudo docker logs webstack_phppgadmin_1;
 
+# Memcached
+sudo docker run \
+    --name webstack_memcached_1 \
+    -p 11211:11211 \
+    -d wsd_memcached;
+
+# Crée le container : Lancement de php-fpm sur le port 9000
+sudo docker run \
+    --name webstack_php_1 \
+    -p 9000:9000 \
+    -v ${dockerDir}dockerfiles/nginx/LINK/www:/var/www:rw \
+    --link webstack_postgres_1:webstack_postgres \
+    --link webstack_memcached_1:webstack_memcached \
+    -d wsd_phpfpm && sudo docker logs webstack_php_1;
+
 # Crée le container : Redirige le port TCP/80 de notre hôte vers le port TCP/80 du conteneur
 sudo docker run \
     --name webstack_nginx_1 \
@@ -51,7 +59,8 @@ sudo docker run \
     -v ${dockerDir}dockerfiles/nginx/LINK/sites-enabled:/etc/nginx/sites-enabled:ro \
     -v ${dockerDir}dockerfiles/nginx/LINK/log:/var/log/nginx:rw \
     --link webstack_php_1:webstack_php \
-    --link webstack_postgres_1:postgres \
+    --link webstack_postgres_1:webstack_postgres \
+    --link webstack_memcached_1:webstack_memcached \
     -d wsd_nginx && sudo docker logs webstack_nginx_1;
 
 # Construit les vendors
@@ -97,12 +106,6 @@ else
             wsd_nodejs_bower_grunt;
     fi
 fi
-
-# Memcached
-sudo docker run \
-    --name webstack_memcached_1 \
-    -p 11211:11211 \
-    -d wsd_memcached;
 
 # Confirmation de création des conteneurs
 sudo docker ps;
