@@ -52,7 +52,7 @@ sudo docker run \
 # Crée le container : Redirige le port TCP/80 de notre hôte vers le port TCP/80 du conteneur
 sudo docker run \
     --name webstack_nginx_1 \
-    -p 80:80 \
+    -p 8080:80 \
     -v ${dockerDir}dockerfiles/nginx/LINK/www:/var/www:rw \
     -v ${dockerDir}dockerfiles/nginx/LINK/htpasswds/${wsd_project_name}:/etc/nginx/htpasswds:ro \
     -v ${dockerDir}dockerfiles/nginx/LINK/sites-enabled:/etc/nginx/sites-available:ro \
@@ -106,6 +106,14 @@ else
             wsd_nodejs_bower_grunt;
     fi
 fi
+
+#Varnish
+sudo docker run \
+    --name webstack_varnish_1 \
+    -v ${dockerDir}dockerfiles/varnish/LINK/default.vcl:/etc/varnish/default.vcl:ro \
+    -p 80:80 \
+    --link webstack_nginx_1:webstack_nginx \
+    -d jacksoncage/varnish;
 
 # Confirmation de création des conteneurs
 sudo docker ps;

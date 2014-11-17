@@ -94,6 +94,9 @@ sudo docker pull maxexcloo/phppgadmin; # phpPgAdmin
 subShow "Image : Memcached";
 cd ${dockerDir}dockerfiles/memcached && sudo docker build -t wsd_memcached .;
 
+subShow "Image : Varnish";
+docker pull jacksoncage/varnish;
+
 # Piwik
 
 # Confirmation des images disponible
