@@ -84,10 +84,10 @@ Si vous êtes en environnement de développement, le script vous proposera d'ins
 * [phpstorm] - phpStorm
 * [smartgit] - smartGit
 * [pgadmin] - PG Admin 3
-* [neovim] - NeoVIM ( avec quelques plugins pratiques )
 
 Si vous êtes en environnement de production, staging ou test, le script vous proposera d'installer sur la machine hôte :
 
+* [neovim] - NeoVIM ( avec quelques plugins pratiques )
 * [glances] - Glances
 
 [nginx]:http://nginx.org/
