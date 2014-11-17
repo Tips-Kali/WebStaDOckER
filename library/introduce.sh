@@ -68,12 +68,23 @@ fi
 # Outils de travail
 if [ ${wsd_project_environment} == "development" ]; then
     echo "Installer Java, phpStorm, SmartGit... ?" && read REPLY && if [ "$REPLY" == "y" ]; then
+        # Java
         sudo echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list;
         sudo echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list;
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886;
         sudo apt-get update -y;
         sudo apt-get -y install oracle-java8-installer;
-        # phpstorm, smartgit...
+
+        # PhpStorm
+        wget http://download-cf.jetbrains.com/webide/PhpStorm-8.0.1.tar.gz;
+        tar -xzvf PhpStorm-8.0.1.tar.gz;
+        rm -f PhpStorm-8.0.1.tar.gz;
+        /bin/sh PhpStorm-138.2001.2328/bin/phpstorm.sh;
+
+        # SmartGit
+        wget http://www.syntevo.com/smartgit/download?file=smartgit/smartgit-6_5_0.deb;
+        sudo dpkg -i smartgit-6_5_0.deb;
+        rm -f smartgit-6_5_0.deb;
     fi
 
     echo "Installer PgAdmin 3 ?" && read REPLY && if [ "$REPLY" == "y" ]; then

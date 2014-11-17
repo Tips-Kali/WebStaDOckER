@@ -9,9 +9,9 @@ Technologies
 Si vous voulez un serveur avec ces technologies :
 
 * [postgresql] - PostgreSQL + PostGis ( avec dump de votre .pgsql )
-* [memcache] - Memcache (à venir)
+* [memcache] - Memcache
 * [nodejs] - NodeJS : Grunt + Bower
-* [varnish] - Varnish (à venir)
+* [varnish] - Varnish
 
 **En environnement : production**
 
@@ -81,8 +81,8 @@ Bonus
 Si vous êtes en environnement de développement, le script vous proposera d'installer sur la machine hôte :
 
 * [java] - java
-* [phpstorm] - phpStorm (à venir)
-* [smartgit] - smartGit (à venir)
+* [phpstorm] - phpStorm
+* [smartgit] - smartGit
 * [pgadmin] - PG Admin 3
 * [neovim] - NeoVIM ( avec quelques plugins pratiques )
 
