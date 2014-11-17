@@ -8,12 +8,38 @@ sudo docker stop $(sudo docker ps -a -q) && sudo docker rm $(sudo docker ps -a -
 # Todo : limiter la conso RAM/CPU des container : https://docs.docker.com/installation/ubuntulinux/#memory-and-swap-accounting
 # Todo : voir le démarrage automatique des containers : https://docs.docker.com/articles/host_integration/
 
+# SkyDNS
+sudo docker run \
+    -d \
+    -p 172.17.42.1:53:53/udp \
+    --name skydns \
+    crosbymichael/skydns \
+    -nameserver 8.8.8.8:53 \
+    -domain docker.${wsd_project_domain};
+
+# SkyDOCK
+sudo docker run \
+    -d \
+    -v /var/run/docker.sock:/docker.sock \
+    --name skydock \
+    crosbymichael/skydock \
+    -ttl 30 \
+    -environment dev \
+    -s /docker.sock \
+    -domain docker \
+    -name skydns;
+
 # PostgreSQL
 sudo docker run \
     --name webstack_postgres_1 \
     -it \
     -v ${dockerDir}dockerfiles/postgres/LINK/data:/var/lib/postgresql/data:rw \
-    -d wsd_postgres && sudo docker logs webstack_postgres_1;
+    --dns=172.17.42.1 \
+    -d wsd_postgres;
+
+# Configuration du DNS
+dig @172.17.42.1 dev.${wsd_project_domain};
+#set -x SKYDNS "http://$(dig @172.17.42.1 +short dev.docker.${wsd_project_domain}):8080";
 
 if [[ ${wsd_action} == "install" ]]; then
     echo "Attend que Postgres se prépare...";
@@ -32,12 +58,14 @@ sudo docker run \
     -p 3321:80 \
     --link webstack_postgres_1:postgresql \
     -e "VIRTUAL_HOST=phppgadmin.${wsd_project_domain}" \
-    -d maxexcloo/phppgadmin && sudo docker logs webstack_phppgadmin_1;
+    --dns=172.17.42.1 \
+    -d maxexcloo/phppgadmin;
 
 # Memcached
 sudo docker run \
     --name webstack_memcached_1 \
     -p 11211:11211 \
+    --dns=172.17.42.1 \
     -d wsd_memcached;
 
 # Crée le container : Lancement de php-fpm sur le port 9000
@@ -45,23 +73,22 @@ sudo docker run \
     --name webstack_php_1 \
     -p 9000:9000 \
     -v ${dockerDir}dockerfiles/nginx/LINK/www:/var/www:rw \
-    --link webstack_postgres_1:webstack_postgres \
-    --link webstack_memcached_1:webstack_memcached \
-    -d wsd_phpfpm && sudo docker logs webstack_php_1;
+    --dns=172.17.42.1 \
+    -d wsd_phpfpm;
 
 # Crée le container : Redirige le port TCP/80 de notre hôte vers le port TCP/80 du conteneur
 sudo docker run \
     --name webstack_nginx_1 \
+    -t \
+    -i \
     -p 8080:80 \
     -v ${dockerDir}dockerfiles/nginx/LINK/www:/var/www:rw \
     -v ${dockerDir}dockerfiles/nginx/LINK/htpasswds/${wsd_project_name}:/etc/nginx/htpasswds:ro \
     -v ${dockerDir}dockerfiles/nginx/LINK/sites-enabled:/etc/nginx/sites-available:ro \
     -v ${dockerDir}dockerfiles/nginx/LINK/sites-enabled:/etc/nginx/sites-enabled:ro \
     -v ${dockerDir}dockerfiles/nginx/LINK/log:/var/log/nginx:rw \
-    --link webstack_php_1:webstack_php \
-    --link webstack_postgres_1:webstack_postgres \
-    --link webstack_memcached_1:webstack_memcached \
-    -d wsd_nginx && sudo docker logs webstack_nginx_1;
+    --dns=172.17.42.1 \
+    -d wsd_nginx;
 
 # Construit les vendors
 sudo docker run \
@@ -77,6 +104,7 @@ if [[ ${wsd_action} == "install" ]]; then
             -e "environment=development" \
             -e "action=install" \
             -v ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}:/project:rw \
+            --dns=172.17.42.1 \
             -d wsd_nodejs_bower_grunt;
     else
         sudo docker run \
@@ -95,6 +123,7 @@ else
             -e "environment=development" \
             -e "action=update" \
             -v ${dockerDir}dockerfiles/nginx/LINK/www/${wsd_project_name}:/project:rw \
+            --dns=172.17.42.1 \
             -d wsd_nodejs_bower_grunt;
     else
         sudo docker run \
@@ -110,10 +139,21 @@ fi
 #Varnish
 sudo docker run \
     --name webstack_varnish_1 \
-    -v ${dockerDir}dockerfiles/varnish/LINK/default.vcl:/etc/varnish/default.vcl:ro \
+    -v ${dockerDir}dockerfiles/varnish/LINK/default_modified.vcl:/etc/varnish/default.vcl:ro \
     -p 80:80 \
-    --link webstack_nginx_1:webstack_nginx \
+    --dns=172.17.42.1 \
     -d jacksoncage/varnish;
 
 # Confirmation de création des conteneurs
 sudo docker ps;
+
+# Résumé du réseau
+echo "Utilisez ces HOSTNAMEs pour communiquer avec vos containers :";
+echo "";
+echo "phpPgAdmin : webstack_phppgadmin_1.phppgadmin.dev.docker.${wsd_project_domain}";
+echo "Postgres SQL : webstack_postgres_1.wsd_postgres.dev.docker.${wsd_project_domain}";
+echo "Memcached : webstack_memcached_1.wsd_memcached.dev.docker.${wsd_project_domain}";
+echo "Varnish : webstack_varnish_1.wsd_varnish.dev.docker.${wsd_project_domain}";
+echo "PHP FPM : webstack_phpfpm_1.wsd_phpfpm.dev.docker.${wsd_project_domain}";
+echo "NGINX : webstack_nginx_1.wsd_nginx.dev.docker.${wsd_project_domain}";
+echo "NodeJS - Bower/Grunt : webstack_nodejs_bower_grunt_1.wsd_nodejs_bower_grunt.dev.docker.${wsd_project_domain}";

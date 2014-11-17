@@ -128,7 +128,7 @@ server {
 
     location ~ \.php$ {
         try_files               $uri =404;
-        fastcgi_pass            webstack_php:9000;
+        fastcgi_pass            webstack_php_1.wsd_phpfpm.dev.docker.wsd_project_domain:9000;
         fastcgi_split_path_info ^(.+\.php)(/.*)$;
         include                 fastcgi_params;
         fastcgi_param           HTTPS off;
@@ -138,7 +138,7 @@ server {
         fastcgi_index           index.php;
 
         #set                    $memcached_key      "$uri?$args";
-        #memcached_pass         webstack_memcached:11211;
+        #memcached_pass         webstack_memcached_1.wsd_memcached.dev.docker.wsd_project_domain:11211;
     }
 
     error_log /var/log/nginx/wsd_project_name_error.log;

@@ -42,6 +42,7 @@ cat >${dockerDir}dockerfiles/nginx/LINK/htpasswds/${wsd_project_name}/htpasswd <
 magie:\$apr1\$PZIfWzJQ\$gGgMTlYrjqAgmE28v2czr1
 EOL
 sed -i "s/wsd_project_name/${wsd_project_name}/" ${dockerDir}dockerfiles/nginx/LINK/sites-enabled/${wsd_project_name};
+sed -i "s/wsd_project_domain/${wsd_project_domain}/" ${dockerDir}dockerfiles/nginx/LINK/sites-enabled/${wsd_project_name};
 sed -i "s/wsd_project_environment_domains/${wsd_project_environment_domains}/" ${dockerDir}dockerfiles/nginx/LINK/sites-enabled/${wsd_project_name};
 sed -i "s/wsd_project_environment/${wsd_project_environment}/" ${dockerDir}dockerfiles/nginx/LINK/sites-enabled/${wsd_project_name};
 cd ${dockerDir}dockerfiles/nginx && sudo docker build -t wsd_nginx .;
@@ -88,6 +89,12 @@ show "RECUPERATION DES IMAGES COMPILEES";
 
 # Récupère les images
 
+subShow "Image : Skydns";
+docker pull crosbymichael/skydns;
+
+subShow "Image : Skydock";
+docker pull crosbymichael/skydock;
+
 subShow "Image : phpPgAdmin";
 sudo docker pull maxexcloo/phppgadmin; # phpPgAdmin
 
@@ -96,6 +103,9 @@ cd ${dockerDir}dockerfiles/memcached && sudo docker build -t wsd_memcached .;
 
 subShow "Image : Varnish";
 docker pull jacksoncage/varnish;
+rm -f ${dockerDir}dockerfiles/varnish/LINK/default_modified.vcl;
+cp ${dockerDir}dockerfiles/varnish/LINK/default.vcl ${dockerDir}dockerfiles/varnish/LINK/default_modified.vcl;
+sed -i "s/wsd_project_domain/${wsd_project_domain}/" ${dockerDir}dockerfiles/varnish/LINK/default_modified.vcl;
 
 # Piwik
 
