@@ -103,9 +103,6 @@ cd ${dockerDir}dockerfiles/memcached && sudo docker build -t wsd_memcached .;
 
 subShow "Image : Varnish";
 docker pull jacksoncage/varnish;
-rm -f ${dockerDir}dockerfiles/varnish/LINK/default_modified.vcl;
-cp ${dockerDir}dockerfiles/varnish/LINK/default.vcl ${dockerDir}dockerfiles/varnish/LINK/default_modified.vcl;
-sed -i "s/wsd_project_domain/${wsd_project_domain}/" ${dockerDir}dockerfiles/varnish/LINK/default_modified.vcl;
 
 # Piwik
 

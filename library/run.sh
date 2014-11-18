@@ -15,7 +15,7 @@ sudo docker run \
     --name skydns \
     crosbymichael/skydns \
     -nameserver 8.8.8.8:53 \
-    -domain docker.${wsd_project_domain};
+    -domain local.docker;
 
 # SkyDOCK
 sudo docker run \
@@ -26,7 +26,7 @@ sudo docker run \
     -ttl 30 \
     -environment dev \
     -s /docker.sock \
-    -domain docker \
+    -domain local.docker \
     -name skydns;
 
 # PostgreSQL
@@ -38,8 +38,8 @@ sudo docker run \
     -d wsd_postgres;
 
 # Configuration du DNS
-dig @172.17.42.1 dev.${wsd_project_domain};
-#set -x SKYDNS "http://$(dig @172.17.42.1 +short dev.docker.${wsd_project_domain}):8080";
+dig @172.17.42.1 dev.local.docker;
+#set -x SKYDNS "http://$(dig @172.17.42.1 +short dev.local.docker):8080";
 
 if [[ ${wsd_action} == "install" ]]; then
     echo "Attend que Postgres se prépare...";
@@ -139,7 +139,7 @@ fi
 #Varnish
 sudo docker run \
     --name webstack_varnish_1 \
-    -v ${dockerDir}dockerfiles/varnish/LINK/default_modified.vcl:/etc/varnish/default.vcl:ro \
+    -v ${dockerDir}dockerfiles/varnish/LINK/default.vcl:/etc/varnish/default.vcl:ro \
     -p 80:80 \
     --dns=172.17.42.1 \
     -d jacksoncage/varnish;
@@ -150,10 +150,10 @@ sudo docker ps;
 # Résumé du réseau
 echo "Utilisez ces HOSTNAMEs pour communiquer avec vos containers :";
 echo "";
-echo "phpPgAdmin : webstack_phppgadmin_1.phppgadmin.dev.docker.${wsd_project_domain}";
-echo "Postgres SQL : webstack_postgres_1.wsd_postgres.dev.docker.${wsd_project_domain}";
-echo "Memcached : webstack_memcached_1.wsd_memcached.dev.docker.${wsd_project_domain}";
-echo "Varnish : webstack_varnish_1.wsd_varnish.dev.docker.${wsd_project_domain}";
-echo "PHP FPM : webstack_phpfpm_1.wsd_phpfpm.dev.docker.${wsd_project_domain}";
-echo "NGINX : webstack_nginx_1.wsd_nginx.dev.docker.${wsd_project_domain}";
-echo "NodeJS - Bower/Grunt : webstack_nodejs_bower_grunt_1.wsd_nodejs_bower_grunt.dev.docker.${wsd_project_domain}";
+echo "phpPgAdmin : webstack_phppgadmin_1.phppgadmin.dev.local.docker";
+echo "Postgres SQL : webstack_postgres_1.wsd_postgres.dev.local.docker";
+echo "Memcached : webstack_memcached_1.wsd_memcached.dev.local.docker";
+echo "Varnish : webstack_varnish_1.wsd_varnish.dev.local.docker";
+echo "PHP FPM : webstack_phpfpm_1.wsd_phpfpm.dev.local.docker";
+echo "NGINX : webstack_nginx_1.wsd_nginx.dev.local.docker";
+echo "NodeJS - Bower/Grunt : webstack_nodejs_bower_grunt_1.wsd_nodejs_bower_grunt.dev.local.docker";
