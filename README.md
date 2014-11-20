@@ -48,13 +48,13 @@ Récupération
 --------------
 
 ```sh
-mkdir -p ~/mon_projet && cd ~/mon_projet && git clone https://github.com/WilliamWolface/WebStaDOckER.git
+mkdir -p ~/mon_projet && cd ~/mon_projet && git clone https://github.com/EvKoh/WebStaDOckER.git
 ```
 
 Installation
 --------------
 
-Lisez le [wiki](https://github.com/WilliamWolface/WebStaDOckER/blob/master/library/wiki.md) !
+Lisez le [wiki](https://github.com/EvKoh/WebStaDOckER/blob/master/library/wiki.md) !
 
 * Copiez le fichier config.sh.dist en config.sh
 * Configurez ce nouveau fichier selon vos besoins
