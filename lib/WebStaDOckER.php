@@ -177,6 +177,7 @@ class WebStaDOckER {
      */
     public function build_all_images() {
         $this->pull_images();
+        $this->build_memcached();
         $this->build_phpfpm();
         $this->build_nginx();
         $this->build_postgres();
