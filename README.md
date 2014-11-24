@@ -66,7 +66,14 @@ bash ~/mon_projet/WebStaDOckER/wsd.sh install
 
 * ...et laissez-vous guider ;)
 
-(Re)Lancer
+Lancer
+--------------
+
+```sh
+bash ~/mon_projet/WebStaDOckER/wsd.sh run
+```
+
+Relancer
 --------------
 
 ```sh
