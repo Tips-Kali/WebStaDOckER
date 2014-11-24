@@ -2,6 +2,9 @@ FROM jprjr/arch
 
 MAINTAINER John Regan <john@jrjrtech.com>
 
+# Variables d'environnement
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN pacman -Syy --noconfirm --quiet > /dev/null
 RUN pacman -S --noconfirm --quiet --needed php-fpm php-gd \
     php-mcrypt php-ldap php-sqlite php-pgsql php-pear \

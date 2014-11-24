@@ -1,0 +1,37 @@
+<?php
+
+$A_CONFIG = array();
+
+// Identity
+$A_CONFIG['identity']['name'] ='example';
+$A_CONFIG['identity']['email'] ='example@webstadocker.org';
+
+// Git
+$A_CONFIG['git']['user'] = 'example';
+$A_CONFIG['git']['password'] = 'example';
+$A_CONFIG['git']['server'] = 'git.webstadocker.org';
+$A_CONFIG['git']['port'] = 'example';
+$A_CONFIG['git']['namespace'] = 'example';
+$A_CONFIG['git']['project'] = 'example';
+
+$A_CONFIG['git']['clone'] = 'http://'.$A_CONFIG['git']['user'].':'.$A_CONFIG['git']['password'].'@'.$A_CONFIG['git']['server'].':'.$A_CONFIG['git']['port'].'/'.$A_CONFIG['git']['namespace'].'/'.$A_CONFIG['git']['project'].'.git'; # HTTP
+//$A_CONFIG['git']['clone'] = '$'.$A_CONFIG['git']['user'].'@'.$A_CONFIG['git']['server'].':'.$A_CONFIG['git']['namespace'].'/'.$A_CONFIG['git']['project'].'.git', # SSH
+
+// System
+$A_CONFIG['system']['user'] = 'example';
+
+// Project
+$A_CONFIG['project']['name'] = $A_CONFIG['git']['project'];
+$A_CONFIG['project']['domain'] = $A_CONFIG['project']['name'].'.com';
+$A_CONFIG['project']['environment'] = 'development';
+$A_CONFIG['project']['environment_domains'] = $A_CONFIG['project']['domain'].' test.'.$A_CONFIG['project']['domain'].' staging.'.$A_CONFIG['project']['domain'];
+$A_CONFIG['project']['directory'] = $A_PATHS['base'] . '/data/www/' . $A_CONFIG['project']['name'];
+$A_CONFIG['project']['password'] = 'example'; # NULL si pas utilisé
+
+// Postgres SQL
+$A_CONFIG['postgres']['database']['name'] = $A_CONFIG['project']['name'];
+$A_CONFIG['postgres']['user'] = $A_CONFIG['system']['user'];
+$A_CONFIG['postgres']['password'] = 'example';
+
+// Piwik
+$A_CONFIG['piwik']['database']['password'] = 'example';

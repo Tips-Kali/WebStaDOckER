@@ -16,18 +16,10 @@ nbproject
 *.idea
 
 # Fichier de configuration
-config.sh
-library/dev
-dockerfiles/postgres/JOIN/data/dump/*.pgsql
-logs/*.log
-
-# Fichiers après construction des containers
-dockerfiles/nginx/LINK/log/*.log
-dockerfiles/nginx/LINK/htpasswds/*/htpasswd
-dockerfiles/nodejs_bower_grunt/JOIN/package.json
-dockerfiles/nginx/LINK/sites-enabled/*
-dockerfiles/nginx/LINK/www/*
-dockerfiles/postgres/JOIN/data/certs/*
-*_modified.*
-dockerfiles/postgres/LINK/data/*
+data/*
 backups/*
+config.php
+#dockerfiles/nodejs_bower_grunt/package.json
+dockerfiles/postgres/require/dbexport.pgsql
+dockerfiles/nginx/require/sites-enabled/*
+dockerfiles/nginx/require/htpasswds/*

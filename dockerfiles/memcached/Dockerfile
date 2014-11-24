@@ -1,14 +1,15 @@
 FROM debian:jessie
 
-MAINTAINER WilliamWolface <william@wolface.com
+MAINTAINER WebStaDOckER <webstadocker@webstadocker.org>
 
-# Set environment.
+# Variables d'environnement
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install
-RUN apt-get update -y -q
-RUN apt-get autoremove -y -q
-RUN apt-get install -y -q build-essential curl libevent-dev wget
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -y -q
+RUN DEBIAN_FRONTEND=noninteractive apt-get autoremove -y -q
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
+    build-essential curl libevent-dev wget
 
 # Define working directory.
 WORKDIR /tmp

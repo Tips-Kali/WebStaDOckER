@@ -2,10 +2,14 @@ FROM debian:jessie
 
 MAINTAINER WilliamWolface <william@wolface.com>
 
+# Variables d'environnement
+ENV DEBIAN_FRONTEND noninteractive
+
 # Install
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -y -q
 RUN DEBIAN_FRONTEND=noninteractive apt-get autoremove -y -q
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q php5 php5-dev php5-cli php5-json php5-curl curl git wget
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
+    php5 php5-dev php5-cli php5-json php5-curl curl git wget
 
 # PHP Extension: Zip
 RUN pecl install zip
