@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>WebStaDOckER by EvKoh</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>WebStaDOckER</h1>
+        <h2></h2>
+
+        <section id="downloads">
+          <a href="https://github.com/EvKoh/WebStaDOckER/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/EvKoh/WebStaDOckER/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/EvKoh/WebStaDOckER" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a id="webstadocker---webstack-docker" class="anchor" href="#webstadocker---webstack-docker" aria-hidden="true"><span class="octicon octicon-link"></span></a>WebStaDOckER - Webstack Docker</h1>
+
+<p>Permet de dépoyer un environnement (dev, stage, test, prod), le tout en utilisant la technologie <strong>Docker</strong> pour isoler vos applications.</p>
+
+<h2>
+<a id="technologies" class="anchor" href="#technologies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Technologies</h2>
+
+<p>Si vous voulez un serveur avec ces technologies :</p>
+
+<ul>
+<li>
+<a href="http://www.postgresql.org/">postgresql</a> - PostgreSQL + PostGis ( avec dump de votre .pgsql )</li>
+<li>
+<a href="http://memcached.org/">memcache</a> - Memcache</li>
+<li>
+<a href="http://nodejs.org/">nodejs</a> - NodeJS : Grunt + Bower</li>
+<li>
+<a href="https://www.varnish-cache.org/">varnish</a> - Varnish</li>
+</ul>
+
+<p><strong>En environnement : production</strong></p>
+
+<ul>
+<li>
+<a href="http://nginx.org/">nginx</a> - NGINX FastCgi/PHP-FPM 5.5</li>
+</ul>
+
+<p><strong>En environnement : development et staging</strong></p>
+
+<ul>
+<li>
+<a href="http://www.zend.com/en/products/server/editions-development">zendserverdevelopperedition</a> - ZendServer7 Developper Edition (NGINX php 5.5) (à venir)</li>
+</ul>
+
+<h2>
+<a id="en-option" class="anchor" href="#en-option" aria-hidden="true"><span class="octicon octicon-link"></span></a>En Option</h2>
+
+<ul>
+<li>
+<a href="http://piwik.org/">piwik</a> - Piwik (à venir)</li>
+<li>
+<a href="http://www.sugarcrm.com/">sugarcrm</a> - SugarCRM (à venir)</li>
+<li>
+<a href="http://www.zimbra.com/">zimbra</a> - Zimbra (à venir)</li>
+</ul>
+
+<h2>
+<a id="options-futures" class="anchor" href="#options-futures" aria-hidden="true"><span class="octicon octicon-link"></span></a>Options futures</h2>
+
+<ul>
+<li>
+<a href="http://www.redmine.org/">redmine</a> - Redmine (à venir)</li>
+<li>
+<a href="https://about.gitlab.com/">gitlab</a> - Gitlab (à venir)</li>
+</ul>
+
+<h1>
+<a id="requis" class="anchor" href="#requis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requis</h1>
+
+<ul>
+<li>Debian : Wheezy(7) ou Jessie(8)</li>
+</ul>
+
+<h2>
+<a id="version" class="anchor" href="#version" aria-hidden="true"><span class="octicon octicon-link"></span></a>Version</h2>
+
+<p>1.2</p>
+
+<h2>
+<a id="récupération" class="anchor" href="#r%C3%A9cup%C3%A9ration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Récupération</h2>
+
+<div class="highlight highlight-sh"><pre>mkdir -p <span class="pl-k">~</span>/mon_projet <span class="pl-k">&amp;&amp;</span> <span class="pl-s3">cd</span> <span class="pl-k">~</span>/mon_projet <span class="pl-k">&amp;&amp;</span> git clone https://github.com/WilliamWolface/WebStaDOckER.git</pre></div>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<ul>
+<li>Copiez le fichier config.sh.dist en config.sh</li>
+<li>Configurez ce nouveau fichier selon vos besoins</li>
+<li>Lancez la commande suivante :</li>
+</ul>
+
+<div class="highlight highlight-sh"><pre>bash <span class="pl-k">~</span>/mon_projet/WebStaDOckER/wsd.sh install</pre></div>
+
+<ul>
+<li>...et laissez-vous guider ;)</li>
+</ul>
+
+<h2>
+<a id="relancer" class="anchor" href="#relancer" aria-hidden="true"><span class="octicon octicon-link"></span></a>(Re)Lancer</h2>
+
+<div class="highlight highlight-sh"><pre>bash <span class="pl-k">~</span>/mon_projet/WebStaDOckER/wsd.sh run</pre></div>
+
+<div class="highlight highlight-sh"><pre>bash <span class="pl-k">~</span>/mon_projet/WebStaDOckER/wsd.sh restart</pre></div>
+
+<h2>
+<a id="bonus" class="anchor" href="#bonus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bonus</h2>
+
+<p><strong>Parceque vous êtes cool (et surtout des sacrés feignasses) !</strong></p>
+
+<p>Si vous êtes en environnement de développement, le script vous proposera d'installer sur la machine hôte :</p>
+
+<ul>
+<li>
+<a href="https://www.java.com/fr/">java</a> - java</li>
+<li>
+<a href="https://www.jetbrains.com/phpstorm/">phpstorm</a> - phpStorm</li>
+<li>
+<a href="http://www.syntevo.com/smartgit/">smartgit</a> - smartGit</li>
+<li>
+<a href="http://www.pgadmin.org/">pgadmin</a> - PG Admin 3</li>
+</ul>
+
+<p>Si vous êtes en environnement de production, staging ou test, le script vous proposera d'installer sur la machine hôte :</p>
+
+<ul>
+<li>
+<a href="http://neovim.org/">neovim</a> - NeoVIM ( avec quelques plugins pratiques )</li>
+<li>
+<a href="https://github.com/nicolargo/glances">glances</a> - Glances</li>
+</ul>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
