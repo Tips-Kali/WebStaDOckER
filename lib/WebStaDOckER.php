@@ -568,7 +568,7 @@ $A_PATHS['lib'] = __DIR__;
 $A_PATHS['base'] = $A_PATHS['lib'] . '/..';
 $A_PATHS['docker'] = $A_PATHS['base'] . '/dockerfiles';
 // Require
-require $A_PATHS['base'] . "/configuration.php";
+require $A_PATHS['base'] . "/config.php";
 require $A_PATHS['lib'] . "/Colors.php";
 // Object
 $O_WebStaDOckER = new WebStaDOckER($A_PATHS, $A_CONFIG, $O_Colors);
