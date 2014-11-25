@@ -97,6 +97,11 @@ Si vous êtes en environnement de production, staging ou test, le script vous pr
 * [neovim] - NeoVIM ( avec quelques plugins pratiques )
 * [glances] - Glances
 
+A venir
+-----------
+
+Sécurisation de base : SSH, firewall iptables, fail2ban...
+
 [nginx]:http://nginx.org/
 [zendserverdevelopperedition]:http://www.zend.com/en/products/server/editions-development
 [java]:https://www.java.com/fr/

@@ -126,11 +126,18 @@ class WebStaDOckER {
 
     /**
      * Permet de récupérer le projet avec Git
+     *
+     * @param bool $B_new
      */
-    public function get_project() {
+    public function get_project($B_new = FALSE) {
         system('apt-get -y -qq install git');
         $cd = 'cd ' . $this->A_PATHS['base'] . '/data/www && ';
-        system($cd . 'git clone ' . $this->A_CONFIG['git']['clone']);
+        if($B_new === TRUE) {
+            system('rm -rf '.$this->A_PATHS['base'] . '/data/www/'.$this->A_CONFIG['git']['project']);
+            system($cd . 'git clone ' . $this->A_CONFIG['git']['clone']);
+        }else{
+            system($cd . 'git pull');
+        }
         system($cd . 'git config core.fileMode false');
         system($cd . 'git gc');
         system($cd . 'git fsck');
@@ -220,7 +227,6 @@ class WebStaDOckER {
                 -it \
                 webstack_postgres_1 \
                 /bin/bash /wsd/build.sh "' . $this->A_CONFIG['postgres']['database']['name'] . '" "' . $this->A_CONFIG['postgres']['user'] . '" "' . $this->A_CONFIG['postgres']['password'] . '"');
-        $this->run_postgres();
     }
 
     /**
@@ -338,8 +344,6 @@ class WebStaDOckER {
         $this->run_composer();
         $this->run_nodejs_bower_grunt('update');
         $this->run_piwik();
-        system('docker ps -a');
-        system('dig @172.17.42.1 dev.local.docker');
         $this->resume();
     }
 
@@ -370,7 +374,7 @@ class WebStaDOckER {
         system('sudo docker run \
                 --name webstack_php_1 \
                 -p 9000:9000 \
-                -v ' . $this->A_CONFIG['project']['directory'] . ':/var/www:rw \
+                -v ' . $this->A_CONFIG['project']['directory'] . ':/var/www/'.$this->A_CONFIG['project']['name'].':rw \
                 --dns=172.17.42.1 \
                 -d wsd_phpfpm');
         system('docker logs webstack_php_1');
@@ -458,7 +462,7 @@ class WebStaDOckER {
                 -t \
                 -i \
                 -p 8080:80 \
-                -v ' . $this->A_CONFIG['project']['directory'] . ':/var/www:rw \
+                -v ' . $this->A_CONFIG['project']['directory'] . ':/var/www/'.$this->A_CONFIG['project']['name'].':rw \
                 -v ' . $this->A_PATHS['docker'] . '/nginx/require/htpasswds:/etc/nginx/htpasswds:ro \
                 -v ' . $this->A_PATHS['docker'] . '/nginx/require/sites-available:/etc/nginx/sites-available:ro \
                 -v ' . $this->A_PATHS['docker'] . '/nginx/require/sites-enabled:/etc/nginx/sites-enabled:ro \
@@ -530,37 +534,38 @@ class WebStaDOckER {
      * Offre un résumé complet de la situation
      */
     public function resume() {
+        system('docker images');
+        system('docker ps -a');
+        system('dig @172.17.42.1 dev.local.docker');
+        echo "\n\n\n";
+
         echo "Utilisez ces HOSTNAMEs pour communiquer avec vos conteneurs :\n";
         echo "\n";
         echo "phpPgAdmin : webstack_phppgadmin_1.phppgadmin.dev.local.docker\n";
         echo "Postgres SQL : webstack_postgres_1.wsd_postgres.dev.local.docker\n";
         echo "Memcached : webstack_memcached_1.wsd_memcached.dev.local.docker\n";
         echo "Varnish : webstack_varnish_1.wsd_varnish.dev.local.docker\n";
-        echo "PHP FPM : webstack_phpfpm_1.wsd_phpfpm.dev.local.docker\n";
+        echo "PHP FPM : webstack_php_1.wsd_phpfpm.dev.local.docker\n";
         echo "NGINX : webstack_nginx_1.wsd_nginx.dev.local.docker\n";
         echo "NodeJS - Bower/Grunt : webstack_nodejs_bower_grunt_1.wsd_nodejs_bower_grunt.dev.local.docker\n";
-        echo "\n\n";
+        echo "\n\n\n";
 
         if($this->A_CONFIG['project']['environment'] != 'development') {
             echo "Veuillez ne pas oublier de configurer les DNS : \n";
-            echo "phppgadmin.".$this->A_CONFIG['project']['domain'];
-            echo "\n\n";
+            echo "phppgadmin.".$this->A_CONFIG['project']['domain']."\n";
+            echo "\n\n\n";
         }
 
-        echo 'Vos URLs :';
-        echo '';
-        echo "phpPgAdmin : http://phppgadmin.".$this->A_CONFIG['project']['domain'].":3321/";
-        echo "-user : ".$this->A_CONFIG['postgres']['user'];
-        echo "-password : ".$this->A_CONFIG['postgres']['password'];
-        echo '';
-        echo "Piwik : http://piwik.".$this->A_CONFIG['project']['domain'].":4578/";
-        echo "-user : admin";
-        echo "-password : admin";
-        echo "\n\n";
-
-        system('docker images');
-        system('docker ps -a');
-        system('dig @172.17.42.1 dev.local.docker');
+        echo 'Vos URLs :'."\n";
+        echo "\n";
+        echo "phpPgAdmin : http://phppgadmin.".$this->A_CONFIG['project']['domain'].":3321/"."\n";
+        echo "-user : ".$this->A_CONFIG['postgres']['user']."\n";
+        echo "-password : ".$this->A_CONFIG['postgres']['password']."\n";
+        echo "\n";
+        echo "Piwik : http://piwik.".$this->A_CONFIG['project']['domain'].":4578/"."\n";
+        echo "-user : admin"."\n";
+        echo "-password : admin"."\n";
+        echo "\n\n\n";
     }
 }
 
@@ -583,8 +588,10 @@ if (isset($argv[2]) AND isset($argv[1])) {
         switch ($argv[1]) {
             case 'install' :
                 $O_WebStaDOckER->install_hote();
+                // Init
+                $O_WebStaDOckER->get_project(TRUE);
                 // Rebuild :
-                $O_WebStaDOckER->stop_all_containers(TRUE);
+                $O_WebStaDOckER->stop_all_containers(TRUE); // And remove images
                 $O_WebStaDOckER->build_all_images();
                 break;
             case 'run':
@@ -592,14 +599,14 @@ if (isset($argv[2]) AND isset($argv[1])) {
                 $O_WebStaDOckER->run_all_container();
                 break;
             case 'restart':
-                $O_WebStaDOckER->stop_all_containers();
+                $O_WebStaDOckER->stop_all_containers(); // Don't remove images
                 $O_WebStaDOckER->run_all_container();
                 break;
             case 'stop':
                 $O_WebStaDOckER->stop_all_containers();
                 break;
             case 'rebuild':
-                $O_WebStaDOckER->stop_all_containers(TRUE);
+                $O_WebStaDOckER->stop_all_containers(TRUE); // And remove images
                 $O_WebStaDOckER->build_all_images();
                 break;
             case 'init':
