@@ -1,7 +1,7 @@
 #!/bin/bash
 
-rm -rf /var/lib/postgresql/data/*
 mkdir -p /var/lib/postgresql/data
+rm -rf /var/lib/postgresql/data/*
 chown -R postgres /var/lib/postgresql/data
 chown -R postgres /wsd
 gosu postgres initdb --pgdata /var/lib/postgresql/data

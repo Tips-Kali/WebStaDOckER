@@ -199,6 +199,7 @@ class WebStaDOckER {
      * Permet de construire une image Postgres SQL
      */
     public function build_postgres() {
+        system('docker rm -f webstack_postgres_1');
         system('docker rmi wsd_postgres');
         // Certificats
         $cd = 'cd ' . $this->A_PATHS['base'] . '/data/certs && ';
@@ -223,10 +224,17 @@ class WebStaDOckER {
                 -v ' . $this->A_PATHS['base'] . '/data/certs:/wsd/certs:rw \
                 --dns=172.17.42.1 \
                 -d wsd_postgres');
-        system('sleep 30 && docker exec \
+        echo 'Démarrage de Postgres, veuillez patienter...';
+        system('sleep 60 && docker exec \
                 -it \
                 webstack_postgres_1 \
                 /bin/bash /wsd/build.sh "' . $this->A_CONFIG['postgres']['database']['name'] . '" "' . $this->A_CONFIG['postgres']['user'] . '" "' . $this->A_CONFIG['postgres']['password'] . '"');
+    }
+
+    public function rebuild_postgres(){
+        system('docker rm -f webstack_phppgadmin_1');
+        $this->build_postgres();
+        $this->run_phppgadmin();
     }
 
     /**
@@ -497,6 +505,13 @@ class WebStaDOckER {
                 --dns=172.17.42.1 \
                 -d wsd_postgres');
         system('docker logs webstack_postgres_1');
+    }
+
+    public function restart_postgres(){
+        system('docker rm -f webstack_phppgadmin_1');
+        system('docker rm -f webstack_postgres_1');
+        $this->run_postgres();
+        $this->run_phppgadmin();
     }
 
     /**
