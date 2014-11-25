@@ -4,7 +4,7 @@ environment=$1;
 
 # Installation de Glance
 if [ ${environment} != "development" ]; then
-    echo "Installer Glances ?" && read REPLY && if [ "$REPLY" == "y" ]; then
+    echo "Installer Glances [yes/no] ?" && read REPLY && if [ "$REPLY" == "yes" ]; then
         show "MISE EN PLACE DE 'GLANCES'";
         installedGlance="oui";
         apt-get -y install curl;
@@ -14,7 +14,7 @@ fi
 
 # Outils de travail
 if [ ${environment} == "development" ]; then
-    echo "Installer Java, phpStorm, SmartGit... ?" && read REPLY && if [ "$REPLY" == "y" ]; then
+    echo "Installer Java, phpStorm, SmartGit... [yes/no] ?" && read REPLY && if [ "$REPLY" == "yes" ]; then
         # Java
         echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list;
         echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list;
@@ -34,14 +34,14 @@ if [ ${environment} == "development" ]; then
         rm -f smartgit-6_5_0.deb;
     fi
 
-    echo "Installer PgAdmin 3 ?" && read REPLY && if [ "$REPLY" == "y" ]; then
+    echo "Installer PgAdmin 3 [yes/no] ?" && read REPLY && if [ "$REPLY" == "yes" ]; then
         apt-get install -y pgadmin3;
     fi
 fi
 
 # Installation de NeoVIM
 if [ ${environment} != "development" ]; then
-    echo "Installer NeoVIM ?" && read REPLY && if [ "$REPLY" == "y" ]; then
+    echo "Installer  [yes/no] ?" && read REPLY && if [ "$REPLY" == "yes" ]; then
         cd ~;
         apt-get install libtool autoconf automake cmake libncurses5-dev g++ pkg-config;
         wget https://github.com/neovim/neovim/archive/master.zip;
@@ -77,3 +77,13 @@ if [ ${environment} != "development" ]; then
         apt-get -y remove nano vim;
     fi
 fi
+
+# Panamax
+echo "Installer Panamax [yes/no] ?" && read REPLY && if [ "$REPLY" == "yes" ]; then
+    wget https://dl.bintray.com/mitchellh/vagrant/vagrant_1.6.5_x86_64.deb;
+    dpkg -i vagrant_1.6.5_x86_64.deb;
+    apt-get install virtualbox;
+    curl http://download.panamax.io/installer/ubuntu.sh | bash;
+    #panamax;
+    echo "Panamax : http://panamax.local:3000/";
+fi;

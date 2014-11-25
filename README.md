@@ -37,7 +37,8 @@ Options futures
 Requis
 =========
 
-  - Debian : Wheezy(7) ou Jessie(8)
+  - Processeur : Architectures 64 bits
+  - Debian : Wheezy(7) avec kernel 3.16 ou Jessie(8)
 
 Version
 ----
