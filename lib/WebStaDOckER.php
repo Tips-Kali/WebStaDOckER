@@ -1,11 +1,18 @@
 <?php
 
+/**
+ * Yes / No Question
+ *
+ * @param $S_question
+ *
+ * @return bool
+ */
 function yesNo($S_question) {
-    echo $S_question . " [yes/no] : ";
+    echo $S_question . " [yes/no], [y/n], [oui/non] ou [o/n]: ";
     $handle = fopen("php://stdin", "r");
-    $line = fgets($handle);
-    if (trim($line) != 'yes') {
-        echo "ABORTING !\n";
+    $line = strtolower(trim(fgets($handle)));
+    if ($line != 'yes' OR $line != 'y' OR $line != 'oui' OR $line != 'o') {
+        echo "Ok, next !\n";
 
         return FALSE;
     }
@@ -15,11 +22,21 @@ function yesNo($S_question) {
     return TRUE;
 }
 
+/**
+ * Class WebStaDOckER
+ */
 class WebStaDOckER {
     private $A_PATHS;
     private $A_CONFIG;
     private $O_Colors;
 
+    /**
+     * Constructeur
+     *
+     * @param $A_PATHS
+     * @param $A_CONFIG
+     * @param $O_Colors
+     */
     public function __construct($A_PATHS, $A_CONFIG, $O_Colors) {
         $this->A_PATHS = $A_PATHS;
         $this->A_CONFIG = $A_CONFIG;
@@ -132,10 +149,10 @@ class WebStaDOckER {
     public function get_project($B_new = FALSE) {
         system('apt-get -y -qq install git');
         $cd = 'cd ' . $this->A_PATHS['base'] . '/data/www && ';
-        if($B_new === TRUE) {
-            system('rm -rf '.$this->A_PATHS['base'] . '/data/www/'.$this->A_CONFIG['git']['project']);
+        if ($B_new === TRUE) {
+            system('rm -rf ' . $this->A_PATHS['base'] . '/data/www/' . $this->A_CONFIG['git']['project']);
             system($cd . 'git clone ' . $this->A_CONFIG['git']['clone']);
-        }else{
+        } else {
             system($cd . 'git pull');
         }
         system($cd . 'git config core.fileMode false');
@@ -153,7 +170,6 @@ class WebStaDOckER {
     public function pull_images() {
         system('docker pull crosbymichael/skydns');
         system('docker pull crosbymichael/skydock');
-        system('docker pull maxexcloo/phppgadmin');
         system('docker pull jacksoncage/varnish');
     }
 
@@ -161,7 +177,6 @@ class WebStaDOckER {
      * Installer les logiciels sur la machine hôte
      */
     public function install_hote() {
-        // Todo : sudoers
         //Création des répertoires
         @mkdir($this->A_PATHS['base'] . '/backups', 0777, TRUE);
         @mkdir($this->A_PATHS['base'] . '/data/logs', 0777, TRUE);
@@ -171,6 +186,7 @@ class WebStaDOckER {
         system('apt-get update && apt-get upgrade -y');
         if (yesNo('Rendre sudoers l\'utilisateur : ' . $this->A_CONFIG['system']['user'])) {
             system('apt-get install -y sudo');
+            // Todo : sudoers
             system('echo ' . $this->A_CONFIG['system']['user'] . ' \'         ALL=(ALL)       PASSWD: ALL\' >> /etc/sudoers;');
         }
         // Outils
@@ -188,6 +204,7 @@ class WebStaDOckER {
         $this->build_phpfpm();
         $this->build_nginx();
         $this->build_postgres();
+        $this->build_phppgadmin();
         $this->build_composer();
         $this->build_nodejs_bower_grunt();
         $this->build_piwik();
@@ -199,8 +216,7 @@ class WebStaDOckER {
      * Permet de construire une image Postgres SQL
      */
     public function build_postgres() {
-        system('docker rm -f webstack_postgres_1');
-        system('docker rmi wsd_postgres');
+        $this->delete_image('wsd_postgres');
         // Certificats
         $cd = 'cd ' . $this->A_PATHS['base'] . '/data/certs && ';
         system($cd . 'rm -f *');
@@ -231,17 +247,11 @@ class WebStaDOckER {
                 /bin/bash /wsd/build.sh "' . $this->A_CONFIG['postgres']['database']['name'] . '" "' . $this->A_CONFIG['postgres']['user'] . '" "' . $this->A_CONFIG['postgres']['password'] . '"');
     }
 
-    public function rebuild_postgres(){
-        system('docker rm -f webstack_phppgadmin_1');
-        $this->build_postgres();
-        $this->run_phppgadmin();
-    }
-
     /**
      * Construction de l'image Piwik
      */
     public function build_piwik() {
-        system('docker rmi wsd_piwik');
+        $this->delete_image('wsd_piwik');
         system('docker build -t wsd_piwik ' . $this->A_PATHS['docker'] . '/piwik/.');
         system('docker run \
                 --name webstack_piwik_1 \
@@ -252,82 +262,60 @@ class WebStaDOckER {
                 -it \
                 webstack_piwik_1 \
                 /bin/bash /wsd/build.sh "' . $this->A_CONFIG['piwik']['database']['password'] . '" "' . $this->A_CONFIG['project']['domain'] . '"');
-        $this->run_piwik();
     }
 
     /**
      * Construction de l'image Composer
      */
     public function build_composer() {
-        $this->delete_exited_container();
-        $this->delete_container_by_image('wsd_composer', 'latest');
-        system('docker rmi wsd_composer');
+        $this->delete_image('wsd_composer');
         system('docker build -t wsd_composer ' . $this->A_PATHS['docker'] . '/composer/.');
-        $this->run_composer();
+    }
+
+    /**
+     * Construction de l'image Composer
+     */
+    public function build_phppgadmin() {
+        $this->delete_image('wsd_phppgadmin');
+        system('docker build -t wsd_phppgadmin ' . $this->A_PATHS['docker'] . '/phppgadmin/.');
     }
 
     /**
      * Construction de l'image PHP FPM
      */
     public function build_phpfpm() {
-        system('docker rmi wsd_phpfpm');
+        $this->delete_image('wsd_phpfpm');
         system('docker build -t wsd_phpfpm ' . $this->A_PATHS['docker'] . '/phpfpm/.');
-        $this->run_phpfpm();
     }
 
     /**
      * Construction de l'image Memcached
      */
     public function build_memcached() {
-        system('docker rmi wsd_memcached');
+        $this->delete_image('wsd_memcached');
         system('docker build -t wsd_memcached ' . $this->A_PATHS['docker'] . '/memcached/.');
-        $this->run_memcached();
     }
 
     /**
      * Permet de construire une image NodeJs avec Bower et Grunt
      */
     public function build_nodejs_bower_grunt() {
-        system('docker rmi wsd_nodejs_bower_grunt');
-        /*$this->write_file('nodejs_bower_grunt','package.json',json_encode(array(
-            'name' => $this->A_CONFIG['project']['name'],
-            'version' => '1.0.0',
-            'description' => $this->A_CONFIG['project']['name'],
-            'main' => 'Gruntfile.js',
-            'scripts' => array(
-                'test' => 'echo "Error: no test specified" && exit 1',
-            ),
-            'repository' => array(
-                'type' => 'git',
-                'url' => $this->A_CONFIG['git']['clone'],
-            ),
-            'author' => $this->A_CONFIG['identity']['name'],
-            'license' => 'ISC',
-            'devDependencies' => array(
-                'grunt' => '^0.4.5',
-                'grunt-contrib-concat' => '^0.5.0',
-                'grunt-contrib-sass' => '^0.8.1',
-                'grunt-contrib-uglify' => '^0.5.1',
-                'grunt-contrib-watch' => '^0.6.1',
-                'node-sass' => '~0.9.6',
-            ),
-        )));*/
+        $this->delete_image('wsd_nodejs_bower_grunt');
         system('docker build -t wsd_nodejs_bower_grunt ' . $this->A_PATHS['docker'] . '/nodejs_bower_grunt/.');
-        $this->run_nodejs_bower_grunt('install');
     }
 
     /**
      * Permet de construire l'image NGINX
      */
     public function build_nginx() {
-        system('docker rmi wsd_nginx');
+        $this->delete_image('wsd_nginx');
         // vhosts
         copy($this->A_PATHS['docker'] . '/nginx/require/sites-available/example', $this->A_PATHS['docker'] . '/nginx/require/sites-enabled/' . $this->A_CONFIG['project']['name']);
         $this->multiple_replace_in_file($this->A_PATHS['docker'] . '/nginx/require/sites-enabled/' . $this->A_CONFIG['project']['name'], array(
-            'wsd_project_name'                => $this->A_CONFIG['project']['name'],
-            'wsd_project_domain'              => $this->A_CONFIG['project']['domain'],
+            'wsd_project_name' => $this->A_CONFIG['project']['name'],
+            'wsd_project_domain' => $this->A_CONFIG['project']['domain'],
             'wsd_project_environment_domains' => $this->A_CONFIG['project']['environment_domains'],
-            'wsd_project_environment'         => $this->A_CONFIG['project']['environment'],
+            'wsd_project_environment' => $this->A_CONFIG['project']['environment'],
         ));
         // htpasswd
         if (!is_null($this->A_CONFIG['project']['password'])) {
@@ -335,7 +323,6 @@ class WebStaDOckER {
             $this->write_file('nginx/require/htpasswds/' . $this->A_CONFIG['project']['name'], 'htpasswd', 'wsd:' . $S_encrypted_password);
         }
         system('docker build -t wsd_nginx ' . $this->A_PATHS['docker'] . '/nginx/.');
-        $this->run_nginx();
     }
 
     /**
@@ -359,10 +346,12 @@ class WebStaDOckER {
      * Lance Piwik
      */
     public function run_piwik() {
-        system('sudo docker exec \
+        $this->delete_container('webstack_piwik_1');
+        system('docker run \
+                --name webstack_piwik_1 \
                 -it \
-                webstack_piwik_1 \
-                /bin/bash /wsd/run.sh');
+                -p 4578:80 \
+                -d wsd_piwik');
         system('docker logs webstack_piwik_1');
     }
 
@@ -379,10 +368,11 @@ class WebStaDOckER {
      * Permet de lancer PHP FPM
      */
     public function run_phpfpm() {
+        $this->delete_container('webstack_php_1');
         system('sudo docker run \
                 --name webstack_php_1 \
                 -p 9000:9000 \
-                -v ' . $this->A_CONFIG['project']['directory'] . ':/var/www/'.$this->A_CONFIG['project']['name'].':rw \
+                -v ' . $this->A_CONFIG['project']['directory'] . ':/var/www/' . $this->A_CONFIG['project']['name'] . ':rw \
                 --dns=172.17.42.1 \
                 -d wsd_phpfpm');
         system('docker logs webstack_php_1');
@@ -392,6 +382,7 @@ class WebStaDOckER {
      * Permet de lancer Memcached
      */
     public function run_memcached() {
+        $this->delete_container('webstack_memcached_1');
         system('sudo docker run \
                 --name webstack_memcached_1 \
                 -p 11211:11211 \
@@ -404,8 +395,8 @@ class WebStaDOckER {
      * Permet de démarrer un serveur DNS SkyDNS/SkyDOCK
      */
     public function run_skydns_skydock() {
-        $this->delete_container_by_image('skydns');
-        $this->delete_container_by_image('skydock');
+        $this->delete_container('skydns');
+        $this->delete_container('skydock');
         // SkyDNS
         system('docker run \
                 -d \
@@ -450,7 +441,7 @@ class WebStaDOckER {
      * Permet de lancer Varnish
      */
     public function run_varnish() {
-        $this->delete_container_by_image('varnish');
+        $this->delete_container('webstack_varnish_1');
         system('docker run \
                 --name webstack_varnish_1 \
                 -v ' . $this->A_PATHS['docker'] . '/varnish/require/default.vcl:/etc/varnish/default.vcl:ro \
@@ -464,13 +455,13 @@ class WebStaDOckER {
      * Permet de lancer NGINX
      */
     public function run_nginx() {
-        $this->delete_container_by_image('wsd_nginx');
+        $this->delete_container('webstack_nginx_1');
         system('docker run \
                 --name webstack_nginx_1 \
                 -t \
                 -i \
                 -p 8080:80 \
-                -v ' . $this->A_CONFIG['project']['directory'] . ':/var/www/'.$this->A_CONFIG['project']['name'].':rw \
+                -v ' . $this->A_CONFIG['project']['directory'] . ':/var/www/' . $this->A_CONFIG['project']['name'] . ':rw \
                 -v ' . $this->A_PATHS['docker'] . '/nginx/require/htpasswds:/etc/nginx/htpasswds:ro \
                 -v ' . $this->A_PATHS['docker'] . '/nginx/require/sites-available:/etc/nginx/sites-available:ro \
                 -v ' . $this->A_PATHS['docker'] . '/nginx/require/sites-enabled:/etc/nginx/sites-enabled:ro \
@@ -484,19 +475,20 @@ class WebStaDOckER {
      * Permet de lancer phpPgAdmin
      */
     public function run_phppgadmin() {
+        $this->delete_container('webstack_phppgadmin_1');
         system('docker run \
                 --name webstack_phppgadmin_1 \
                 -p 3321:80 \
-                --link webstack_postgres_1:postgresql \
                 -e "VIRTUAL_HOST=phppgadmin.' . $this->A_CONFIG['project']['domain'] . '" \
                 --dns=172.17.42.1 \
-                -d maxexcloo/phppgadmin');
+                -d wsd_phppgadmin');
     }
 
     /**
      * Permet de lancer Postgres
      */
     public function run_postgres() {
+        $this->delete_container('webstack_postgres_1');
         system('docker run \
                 --name webstack_postgres_1 \
                 -it \
@@ -505,13 +497,6 @@ class WebStaDOckER {
                 --dns=172.17.42.1 \
                 -d wsd_postgres');
         system('docker logs webstack_postgres_1');
-    }
-
-    public function restart_postgres(){
-        system('docker rm -f webstack_phppgadmin_1');
-        system('docker rm -f webstack_postgres_1');
-        $this->run_postgres();
-        $this->run_phppgadmin();
     }
 
     /**
@@ -541,8 +526,57 @@ class WebStaDOckER {
      * @param $S_tag
      */
     public function delete_container_by_image($S_image, $S_tag = 'latest') {
-        echo 'Container(s) supprimé : ';
-        system('docker rm  $(docker ps -a | awk \'/' . $S_image . ':' . $S_tag . '/{print $1}\')');
+        system('docker stop ' . $this->get_cid_by_cname($S_image, $S_tag));
+        system('docker rm -f ' . $this->get_cid_by_cname($S_image, $S_tag));
+    }
+
+    /**
+     * Permet de récupérer un container ID en fonction d'un container name
+     *
+     * @param        $S_image
+     * @param string $S_tag
+     */
+    public function get_cid_by_cname($S_image, $S_tag = 'latest') {
+        return system('docker ps -a | awk \'/' . $S_image . ':' . $S_tag . '/{print $1}\'');
+    }
+
+    /**
+     * Permet de savoir si un container est bien lancé
+     *
+     * @param $S_container_name
+     *
+     * @return bool
+     */
+    public function check_container_is_running($I_container_name) {
+        $B_returned = FALSE;
+        $S_result = system('docker inspect -f {{.State.Running}} ' . $I_container_name);
+        if ($S_result === TRUE OR $S_result == 'true') {
+            $B_returned = TRUE;
+        }
+
+        return $B_returned;
+    }
+
+    /**
+     * Arrêt et Suppression d'un container
+     *
+     * @param $S_container_name
+     */
+    public function delete_container($S_container_name) {
+        if ($this->check_container_is_running($S_container_name)) {
+            system('docker stop ' . $S_container_name);
+            system('docker rm -f ' . $S_container_name);
+        }
+    }
+
+    /**
+     * Suppression d'image
+     *
+     * @param $S_image_name
+     */
+    public function delete_image($S_image_name) {
+        $this->delete_container_by_image($S_image_name);
+        system('docker rmi ' . $S_image_name);
     }
 
     /**
@@ -552,35 +586,32 @@ class WebStaDOckER {
         system('docker images');
         system('docker ps -a');
         system('dig @172.17.42.1 dev.local.docker');
-        echo "\n\n\n";
-
-        echo "Utilisez ces HOSTNAMEs pour communiquer avec vos conteneurs :\n";
-        echo "\n";
-        echo "phpPgAdmin : webstack_phppgadmin_1.phppgadmin.dev.local.docker\n";
-        echo "Postgres SQL : webstack_postgres_1.wsd_postgres.dev.local.docker\n";
-        echo "Memcached : webstack_memcached_1.wsd_memcached.dev.local.docker\n";
-        echo "Varnish : webstack_varnish_1.wsd_varnish.dev.local.docker\n";
-        echo "PHP FPM : webstack_php_1.wsd_phpfpm.dev.local.docker\n";
-        echo "NGINX : webstack_nginx_1.wsd_nginx.dev.local.docker\n";
-        echo "NodeJS - Bower/Grunt : webstack_nodejs_bower_grunt_1.wsd_nodejs_bower_grunt.dev.local.docker\n";
-        echo "\n\n\n";
-
-        if($this->A_CONFIG['project']['environment'] != 'development') {
-            echo "Veuillez ne pas oublier de configurer les DNS : \n";
-            echo "phppgadmin.".$this->A_CONFIG['project']['domain']."\n";
-            echo "\n\n\n";
+        echo "\n\n\n
+        Utilisez ces HOSTNAMEs pour communiquer entre vos conteneurs :
+        \n
+        \tphpPgAdmin : webstack_phppgadmin_1.phppgadmin.dev.local.docker
+        \tPostgres SQL : webstack_postgres_1.wsd_postgres.dev.local.docker
+        \tMemcached : webstack_memcached_1.wsd_memcached.dev.local.docker
+        \tVarnish : webstack_varnish_1.wsd_varnish.dev.local.docker
+        \tPHP FPM : webstack_php_1.wsd_phpfpm.dev.local.docker
+        \tNGINX : webstack_nginx_1.wsd_nginx.dev.local.docker
+        NodeJS - Bower/Grunt : webstack_nodejs_bower_grunt_1.wsd_nodejs_bower_grunt.dev.local.docker
+        \n\n\n";
+        if ($this->A_CONFIG['project']['environment'] != 'development') {
+            echo "Veuillez ne pas oublier de configurer les DNS : \n
+            phppgadmin." . $this->A_CONFIG['project']['domain'] . "
+            \n\n\n";
         }
-
-        echo 'Vos URLs :'."\n";
-        echo "\n";
-        echo "phpPgAdmin : http://phppgadmin.".$this->A_CONFIG['project']['domain'].":3321/"."\n";
-        echo "-user : ".$this->A_CONFIG['postgres']['user']."\n";
-        echo "-password : ".$this->A_CONFIG['postgres']['password']."\n";
-        echo "\n";
-        echo "Piwik : http://piwik.".$this->A_CONFIG['project']['domain'].":4578/"."\n";
-        echo "-user : admin"."\n";
-        echo "-password : admin"."\n";
-        echo "\n\n\n";
+        echo 'Vos URLs :' . "\n
+        \n
+        \tphpPgAdmin : http://phppgadmin." . $this->A_CONFIG['project']['domain'] . ":3321/" . "
+        \t\t-user : " . $this->A_CONFIG['postgres']['user'] . "
+        \t\t-password : " . $this->A_CONFIG['postgres']['password'] . "
+        \n
+        \tPiwik : http://piwik." . $this->A_CONFIG['project']['domain'] . ":4578/
+        \t\t-user : admin
+        \t\t-password : admin
+        \n\n\n";
     }
 }
 
@@ -603,48 +634,47 @@ if (isset($argv[2]) AND isset($argv[1])) {
         switch ($argv[1]) {
             case 'install' :
                 $O_WebStaDOckER->install_hote();
-                // Init
+                // Clone project
                 $O_WebStaDOckER->get_project(TRUE);
-                // Rebuild :
-                $O_WebStaDOckER->stop_all_containers(TRUE); // And remove images
+                // Build All :
+                $O_WebStaDOckER->stop_all_containers(TRUE);
                 $O_WebStaDOckER->build_all_images();
-                break;
-            case 'run':
-            default:
+                // Start All :
                 $O_WebStaDOckER->run_all_container();
                 break;
-            case 'restart':
-                $O_WebStaDOckER->stop_all_containers(); // Don't remove images
+            case 'start':
+            default:
                 $O_WebStaDOckER->run_all_container();
                 break;
             case 'stop':
                 $O_WebStaDOckER->stop_all_containers();
                 break;
-            case 'rebuild':
-                $O_WebStaDOckER->stop_all_containers(TRUE); // And remove images
-                $O_WebStaDOckER->build_all_images();
+            case 'restart':
+                $O_WebStaDOckER->stop_all_containers();
+                $O_WebStaDOckER->run_all_container();
                 break;
-            case 'init':
-                $O_WebStaDOckER->get_project(TRUE);
+            case 'rebuild':
+                $O_WebStaDOckER->stop_all_containers(TRUE);
+                $O_WebStaDOckER->build_all_images();
                 break;
             case 'help':
                 echo $O_Colors->getColoredString(NULL, "light_green", NULL) . "\n";
-                echo "Exemple d'utilisation (simple) : \n";
-                echo "\n";
-                echo "    bash ./wsd.sh [install|run|restart|stop|rebuild|init|help] \n";
-                echo "\n";
-                echo "Exemple d'utilisation (avancé) : \n";
-                echo "\n";
-                echo "    bash ./wsd.sh build postgres \n";
-                echo "    bash ./wsd.sh run postgres \n";
-                echo "\n";
-                echo "    bash ./wsd.sh build phpfpm \n";
-                echo "    bash ./wsd.sh run phpfpm \n";
-                echo "\n";
-                echo "    ...et ce avec chaque conteneur !";
-                echo "\n\n";
+                echo "Exemple d'utilisation (simple) : \n
+                \n
+                \tbash ./wsd.sh [install|start|stop|restart|rebuild|help] \n
+                \n
+                Exemple d'utilisation (avancé) : \n
+                \n
+                \tbash ./wsd.sh build postgres \n
+                \tbash ./wsd.sh run postgres \n
+                \n
+                \tbash ./wsd.sh build phpfpm \n
+                \tbash ./wsd.sh run phpfpm \n
+                \n
+                \t...et ce avec chaque conteneur !
+                \n\n";
+                echo $O_WebStaDOckER->resume();
                 echo $O_Colors->getColoredString(NULL, "light_blue", NULL);
-                echo "aaa";
                 break;
         }
     }

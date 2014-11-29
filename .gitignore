@@ -19,7 +19,6 @@ nbproject
 data/*
 backups/*
 config.php
-#dockerfiles/nodejs_bower_grunt/package.json
 dockerfiles/postgres/require/dbexport.pgsql
 dockerfiles/nginx/require/sites-enabled/*
 dockerfiles/nginx/require/htpasswds/*

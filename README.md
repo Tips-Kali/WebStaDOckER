@@ -33,17 +33,17 @@ Options futures
 
 * [redmine] - Redmine (à venir)
 * [gitlab] - Gitlab (à venir)
+* [webmin] - Webmin (à venir)
+* [phpdocumentor] - phpDocumentor (à venir)
+* [goaccess] - GoAccess (à venir)
+* [munin] - munin (à venir)
+* [readthedoc] - readthedoc (à venir)
 
 Requis
 =========
 
   - Processeur : Architectures 64 bits
   - Debian : Wheezy(7) avec kernel 3.16 ou Jessie(8)
-
-Version
-----
-
-1.2
 
 Récupération
 --------------
@@ -93,15 +93,26 @@ Si vous êtes en environnement de développement, le script vous proposera d'ins
 * [smartgit] - smartGit
 * [pgadmin] - PG Admin 3
 
-Si vous êtes en environnement de production, staging ou test, le script vous proposera d'installer sur la machine hôte :
+Quel que soit l'environnement, le script vous proposera d'installer sur la machine hôte :
 
 * [neovim] - NeoVIM ( avec quelques plugins pratiques )
 * [glances] - Glances
 
+Version
+----
+
+**1.3**
+
 A venir
 -----------
 
-Sécurisation de base : SSH, firewall iptables, fail2ban...
+* Sécurisation de base : SSH, firewall iptables, fail2ban...
+* Etudier Panamax, cela peut être une option intéressante
+* Finir d'étudier le cas des IPs avec le container Postgres
+* Finir le container Piwik
+* Mettre en place le container Sugar CRM
+* Mettre en place le conainer ZendServer, moins urgent
+* Finir de mettre en place les plugins de NeoVIM et un scheme plus simpa
 
 [nginx]:http://nginx.org/
 [zendserverdevelopperedition]:http://www.zend.com/en/products/server/editions-development
@@ -120,3 +131,8 @@ Sécurisation de base : SSH, firewall iptables, fail2ban...
 [pgadmin]:http://www.pgadmin.org/
 [neovim]:http://neovim.org/
 [glances]:https://github.com/nicolargo/glances
+[webmin]:http://www.webmin.com/
+[phpdocumentor]:http://www.phpdoc.org/
+[goaccess]:http://goaccess.io/
+[munin]:http://munin-monitoring.org/
+[readthedoc]:https://readthedocs.org/
