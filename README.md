@@ -69,16 +69,20 @@ bash ~/mon_projet/WebStaDOckER/wsd.sh install
 
 Lancer
 --------------
-
 ```sh
-bash ~/mon_projet/WebStaDOckER/wsd.sh run
+wsd run
 ```
 
 Relancer
 --------------
-
 ```sh
-bash ~/mon_projet/WebStaDOckER/wsd.sh restart
+wsd restart
+```
+
+Entrer dans un conteneur
+--------------
+```sh
+wsd go webstack_postgres_1
 ```
 
 Bonus
@@ -106,6 +110,7 @@ Version
 A venir
 -----------
 
+* Backup automatique / Suppression des backups trop vieux
 * Sécurisation de base : SSH, firewall iptables, fail2ban...
 * Etudier Panamax, cela peut être une option intéressante
 * Finir d'étudier le cas des IPs avec le container Postgres

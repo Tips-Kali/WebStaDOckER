@@ -11,7 +11,7 @@ function yesNo($S_question) {
     echo $S_question . " [yes/no], [y/n], [oui/non] ou [o/n]: ";
     $handle = fopen("php://stdin", "r");
     $line = strtolower(trim(fgets($handle)));
-    if ($line != 'yes' OR $line != 'y' OR $line != 'oui' OR $line != 'o') {
+    if ($line != 'yes' AND $line != 'y' AND $line != 'oui' AND $line != 'o') {
         echo "Ok, next !\n";
 
         return FALSE;
@@ -38,10 +38,12 @@ class WebStaDOckER {
      * @param $O_Colors
      */
     public function __construct($A_PATHS, $A_CONFIG, $O_Colors) {
+        $this->clear();
         $this->A_PATHS = $A_PATHS;
         $this->A_CONFIG = $A_CONFIG;
         $this->O_Colors = $O_Colors;
         self::asciiArt();
+        system("alias wsd='bash ".$this->A_PATHS['base']."/wsd.sh'");
     }
 
     /**
@@ -482,6 +484,7 @@ class WebStaDOckER {
                 -e "VIRTUAL_HOST=phppgadmin.' . $this->A_CONFIG['project']['domain'] . '" \
                 --dns=172.17.42.1 \
                 -d wsd_phppgadmin');
+        system('docker logs webstack_phppgadmin_1');
     }
 
     /**
@@ -497,6 +500,15 @@ class WebStaDOckER {
                 --dns=172.17.42.1 \
                 -d wsd_postgres');
         system('docker logs webstack_postgres_1');
+    }
+
+    /**
+     * Permet d'entrer dans un container
+     *
+     * @param $S_container_name
+     */
+    public function go($S_container_name) {
+        passthru('docker exec -it ' . $S_container_name . ' /bin/bash');
     }
 
     /**
@@ -580,6 +592,13 @@ class WebStaDOckER {
     }
 
     /**
+     * Permet d'effacer l'écran
+     */
+    public function clear(){
+        system('clear');
+    }
+
+    /**
      * Offre un résumé complet de la situation
      */
     public function resume() {
@@ -595,7 +614,7 @@ class WebStaDOckER {
         \tVarnish : webstack_varnish_1.wsd_varnish.dev.local.docker
         \tPHP FPM : webstack_php_1.wsd_phpfpm.dev.local.docker
         \tNGINX : webstack_nginx_1.wsd_nginx.dev.local.docker
-        NodeJS - Bower/Grunt : webstack_nodejs_bower_grunt_1.wsd_nodejs_bower_grunt.dev.local.docker
+        \tNodeJS - Bower/Grunt : webstack_nodejs_bower_grunt_1.wsd_nodejs_bower_grunt.dev.local.docker
         \n\n\n";
         if ($this->A_CONFIG['project']['environment'] != 'development') {
             echo "Veuillez ne pas oublier de configurer les DNS : \n
@@ -626,8 +645,12 @@ require $A_PATHS['lib'] . "/Colors.php";
 $O_WebStaDOckER = new WebStaDOckER($A_PATHS, $A_CONFIG, $O_Colors);
 // Args spécifique
 if (isset($argv[2]) AND isset($argv[1])) {
-    $dynamicFunction = $argv[1] . '_' . $argv[2]; // Example : restart postgres
-    $O_WebStaDOckER->{$dynamicFunction}();
+    if ($argv[1] == 'go') {
+        $O_WebStaDOckER->go($argv[2]);
+    } else {
+        $dynamicFunction = $argv[1] . '_' . $argv[2]; // Example : restart postgres
+        $O_WebStaDOckER->{$dynamicFunction}();
+    }
 } else {
     // Args générique
     if (isset($argv[1])) {
@@ -661,7 +684,7 @@ if (isset($argv[2]) AND isset($argv[1])) {
                 echo $O_Colors->getColoredString(NULL, "light_green", NULL) . "\n";
                 echo "Exemple d'utilisation (simple) : \n
                 \n
-                \tbash ./wsd.sh [install|start|stop|restart|rebuild|help] \n
+                \tbash ./wsd.sh [install|start|stop|restart|rebuild|go|help] \n
                 \n
                 Exemple d'utilisation (avancé) : \n
                 \n
@@ -671,9 +694,14 @@ if (isset($argv[2]) AND isset($argv[1])) {
                 \tbash ./wsd.sh build phpfpm \n
                 \tbash ./wsd.sh run phpfpm \n
                 \n
+                \tbash ./wsd.sh go webstack_phppgadmin_1 \n
+                \tbash ./wsd.sh go webstack_nginx_1 \n
+                \n
                 \t...et ce avec chaque conteneur !
                 \n\n";
-                echo $O_WebStaDOckER->resume();
+                if (yesNo('Afficher également le résumé de votre infrastructure ?')) {
+                    echo $O_WebStaDOckER->resume();
+                }
                 echo $O_Colors->getColoredString(NULL, "light_blue", NULL);
                 break;
         }
