@@ -312,6 +312,7 @@ class WebStaDOckER {
     public function build_nginx() {
         $this->delete_image('wsd_nginx');
         // vhosts
+        system('echo "127.0.0.1   ' . $this->A_CONFIG['project']['environment_domains'] . '" >> /etc/hosts');
         copy($this->A_PATHS['docker'] . '/nginx/require/sites-available/example', $this->A_PATHS['docker'] . '/nginx/require/sites-enabled/' . $this->A_CONFIG['project']['name']);
         $this->multiple_replace_in_file($this->A_PATHS['docker'] . '/nginx/require/sites-enabled/' . $this->A_CONFIG['project']['name'], array(
             'wsd_project_name' => $this->A_CONFIG['project']['name'],
@@ -603,9 +604,11 @@ class WebStaDOckER {
      */
     public function resume() {
         system('docker images');
+        echo "##################################################################################\n";
         system('docker ps -a');
+        echo "##################################################################################\n";
         system('dig @172.17.42.1 dev.local.docker');
-        echo "\n\n\n
+        echo str_replace("    ",NULL,"\n\n\n
         Utilisez ces HOSTNAMEs pour communiquer entre vos conteneurs :
         \n
         \tphpPgAdmin : webstack_phppgadmin_1.phppgadmin.dev.local.docker
@@ -615,13 +618,13 @@ class WebStaDOckER {
         \tPHP FPM : webstack_php_1.wsd_phpfpm.dev.local.docker
         \tNGINX : webstack_nginx_1.wsd_nginx.dev.local.docker
         \tNodeJS - Bower/Grunt : webstack_nodejs_bower_grunt_1.wsd_nodejs_bower_grunt.dev.local.docker
-        \n\n\n";
+        \n\n\n");
         if ($this->A_CONFIG['project']['environment'] != 'development') {
-            echo "Veuillez ne pas oublier de configurer les DNS : \n
+            echo str_replace("    ",NULL,"Veuillez ne pas oublier de configurer les DNS : \n
             phppgadmin." . $this->A_CONFIG['project']['domain'] . "
-            \n\n\n";
+            \n\n\n");
         }
-        echo 'Vos URLs :' . "\n
+        echo 'Vos URLs :' . str_replace("    ",NULL,"\n
         \n
         \tphpPgAdmin : http://phppgadmin." . $this->A_CONFIG['project']['domain'] . ":3321/" . "
         \t\t-user : " . $this->A_CONFIG['postgres']['user'] . "
@@ -630,7 +633,7 @@ class WebStaDOckER {
         \tPiwik : http://piwik." . $this->A_CONFIG['project']['domain'] . ":4578/
         \t\t-user : admin
         \t\t-password : admin
-        \n\n\n";
+        \n\n\n");
     }
 }
 
@@ -682,23 +685,16 @@ if (isset($argv[2]) AND isset($argv[1])) {
                 break;
             case 'help':
                 echo $O_Colors->getColoredString(NULL, "light_green", NULL) . "\n";
-                echo "Exemple d'utilisation (simple) : \n
+                echo str_replace("    ",NULL,"Exemple d'utilisation (simple) : \n
                 \n
-                \tbash ./wsd.sh [install|start|stop|restart|rebuild|go|help] \n
+                \twsd [install|start|stop|restart|rebuild|go [container name]|help] \n
                 \n
-                Exemple d'utilisation (avancé) : \n
+                Exemple d'utilisation (pour un conteneur spécifique) : \n
                 \n
-                \tbash ./wsd.sh build postgres \n
-                \tbash ./wsd.sh run postgres \n
-                \n
-                \tbash ./wsd.sh build phpfpm \n
-                \tbash ./wsd.sh run phpfpm \n
-                \n
-                \tbash ./wsd.sh go webstack_phppgadmin_1 \n
-                \tbash ./wsd.sh go webstack_nginx_1 \n
-                \n
-                \t...et ce avec chaque conteneur !
-                \n\n";
+                \twsd build postgres \n
+                \twsd run postgres \n
+                \twsd go webstack_postgres_1 \n
+                \n\n");
                 if (yesNo('Afficher également le résumé de votre infrastructure ?')) {
                     echo $O_WebStaDOckER->resume();
                 }
