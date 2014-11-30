@@ -43,7 +43,8 @@ class WebStaDOckER {
         $this->A_CONFIG = $A_CONFIG;
         $this->O_Colors = $O_Colors;
         self::asciiArt();
-        system("alias wsd='bash ".$this->A_PATHS['base']."/wsd.sh'");
+        system('echo "alias wsd=\'bash '.$this->A_PATHS['base'].'/wsd.sh\'" >> /etc/profile');
+        system('/bin/bash -c "source /etc/profile";');
     }
 
     /**
