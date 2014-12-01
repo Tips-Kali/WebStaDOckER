@@ -18,7 +18,7 @@ nbproject
 # Fichier de configuration
 data/*
 backups/*
-config.php
+lib/config.json
 dockerfiles/postgres/require/dbexport.pgsql
 dockerfiles/nginx/require/sites-enabled/*
 dockerfiles/nginx/require/htpasswds/*

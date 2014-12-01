@@ -29,21 +29,21 @@ class WebStaDOckER {
     private $A_PATHS;
     private $A_CONFIG;
     private $O_Colors;
+    private $S_version = '1.4';
 
     /**
      * Constructeur
      *
      * @param $A_PATHS
-     * @param $A_CONFIG
      * @param $O_Colors
      */
-    public function __construct($A_PATHS, $A_CONFIG, $O_Colors) {
+    public function __construct($A_PATHS, $O_Colors) {
         $this->clear();
         $this->A_PATHS = $A_PATHS;
-        $this->A_CONFIG = $A_CONFIG;
+        $this->A_CONFIG = json_decode(file_get_contents($A_PATHS['lib'] . "/config.json"), TRUE);
         $this->O_Colors = $O_Colors;
         self::asciiArt();
-        system('echo "alias wsd=\'bash '.$this->A_PATHS['base'].'/wsd.sh\'" >> /etc/profile');
+        system('echo "alias wsd=\'bash ' . $this->A_PATHS['base'] . '/wsd.sh\'" >> /etc/profile');
         system('/bin/bash -c "source /etc/profile";');
     }
 
@@ -108,6 +108,14 @@ class WebStaDOckER {
         $fp = fopen($S_file, 'w');
         fwrite($fp, $S_content);
         fclose($fp);
+        system('chmod 0777 ' . $S_file);
+    }
+
+    /**
+     * Permet de persister la configuration
+     */
+    public function write_config() {
+        $this->write_file('../lib', 'config.json', json_encode($this->A_CONFIG, JSON_PRETTY_PRINT));
     }
 
     /**
@@ -186,12 +194,16 @@ class WebStaDOckER {
         @mkdir($this->A_PATHS['base'] . '/data/certs', 0777, TRUE);
         @mkdir($this->A_PATHS['base'] . '/data/database', 0777, TRUE);
         @mkdir($this->A_PATHS['base'] . '/data/www/' . $this->A_CONFIG['project']['name'], 0777, TRUE);
+        // Paquets
         system('apt-get update && apt-get upgrade -y');
         if (yesNo('Rendre sudoers l\'utilisateur : ' . $this->A_CONFIG['system']['user'])) {
             system('apt-get install -y sudo');
             // Todo : sudoers
             system('echo ' . $this->A_CONFIG['system']['user'] . ' \'         ALL=(ALL)       PASSWD: ALL\' >> /etc/sudoers;');
         }
+        system('apt-get install -y -qq --force-yes php5-cli dialog php5-dev php-pear libnewt-dev');
+        system('pecl install newt');
+        system('/bin/bash -c \'echo "extension=newt.so" >> /etc/php5/cli/php.ini\'');
         // Outils
         system('apt-get -y update && apt-get -y upgrade');
         system('/bin/bash ' . $this->A_PATHS['lib'] . '/install_docker.sh');
@@ -596,7 +608,7 @@ class WebStaDOckER {
     /**
      * Permet d'effacer l'écran
      */
-    public function clear(){
+    public function clear() {
         system('clear');
     }
 
@@ -609,7 +621,7 @@ class WebStaDOckER {
         system('docker ps -a');
         echo "##################################################################################\n";
         system('dig @172.17.42.1 dev.local.docker');
-        echo str_replace("    ",NULL,"\n\n\n
+        echo str_replace("    ", NULL, "\n\n\n
         Utilisez ces HOSTNAMEs pour communiquer entre vos conteneurs :
         \n
         \tphpPgAdmin : webstack_phppgadmin_1.phppgadmin.dev.local.docker
@@ -621,11 +633,11 @@ class WebStaDOckER {
         \tNodeJS - Bower/Grunt : webstack_nodejs_bower_grunt_1.wsd_nodejs_bower_grunt.dev.local.docker
         \n\n\n");
         if ($this->A_CONFIG['project']['environment'] != 'development') {
-            echo str_replace("    ",NULL,"Veuillez ne pas oublier de configurer les DNS : \n
+            echo str_replace("    ", NULL, "Veuillez ne pas oublier de configurer les DNS : \n
             phppgadmin." . $this->A_CONFIG['project']['domain'] . "
             \n\n\n");
         }
-        echo 'Vos URLs :' . str_replace("    ",NULL,"\n
+        echo 'Vos URLs :' . str_replace("    ", NULL, "\n
         \n
         \tphpPgAdmin : http://phppgadmin." . $this->A_CONFIG['project']['domain'] . ":3321/" . "
         \t\t-user : " . $this->A_CONFIG['postgres']['user'] . "
@@ -636,6 +648,141 @@ class WebStaDOckER {
         \t\t-password : admin
         \n\n\n");
     }
+
+    /**
+     * Configuration
+     */
+    public function configuration() {
+        $this->newt_form('Identité', '1/6 - Déclinez votre identité', array(
+            array('label' => 'Pseudo', 'key' => 'identity_name'),
+            array('label' => 'E-mail', 'key' => 'identity_email')
+        ));
+        $this->newt_form('Git', '2/6 - Votre projet (uniquement sous Git)', array(
+            array('label' => 'User', 'key' => 'git_user'),
+            array('label' => 'Password', 'key' => 'git_password'),
+            array('label' => 'Server', 'key' => 'git_server'),
+            array('label' => 'Port', 'key' => 'git_port'),
+            array('label' => 'Namespace', 'key' => 'git_namespace'),
+            array('label' => 'Project', 'key' => 'git_project'),
+            array('label' => 'URL', 'key' => 'git_clone'),
+        ), function () {
+            // HTTPS
+            $this->A_CONFIG['git']['clone'] = 'http://' . $this->A_CONFIG['git']['user'] . ':' . $this->A_CONFIG['git']['password'] . '@' . $this->A_CONFIG['git']['server'] . ':' . $this->A_CONFIG['git']['port'] . '/' . $this->A_CONFIG['git']['namespace'] . '/' . $this->A_CONFIG['git']['project'] . '.git';
+            // SSH
+            //$this->A_CONFIG['git']['clone'] = '$'.$this->A_CONFIG['git']['user'].'@'.$this->A_CONFIG['git']['server'].':'.$this->A_CONFIG['git']['namespace'].'/'.$this->A_CONFIG['git']['project'].'.git'; # SSH
+            $this->A_CONFIG['project']['name'] = $this->A_CONFIG['git']['project'];
+            $this->A_CONFIG['project']['domain'] = $this->A_CONFIG['project']['name'] . '.com';
+            switch ($this->A_CONFIG['project']['environment']) {
+                case 'development':
+                    $this->A_CONFIG['project']['environment_domains'] = 'local.development.' . $this->A_CONFIG['project']['domain'];
+                    break;
+                case 'test':
+                    $this->A_CONFIG['project']['environment_domains'] = 'test.' . $this->A_CONFIG['project']['domain'];
+                    break;
+                case 'staging':
+                    $this->A_CONFIG['project']['environment_domains'] = 'staging.' . $this->A_CONFIG['project']['domain'];
+                    break;
+                case 'production':
+                    $this->A_CONFIG['project']['environment_domains'] = $this->A_CONFIG['project']['domain'];
+                    break;
+            }
+            $this->A_CONFIG['project']['directory'] = $this->A_PATHS['base'] . '/data/www/' . $this->A_CONFIG['project']['name'];
+        });
+        $this->newt_form('System', '3/6 - Utilisateur concerné', array(
+            array('label' => 'User', 'key' => 'system_user')
+        ));
+        $this->newt_form('Projet', '4/6 - Information sur le projet', array(
+            array('label' => 'Name', 'key' => 'project_name'),
+            array('label' => 'Domain', 'key' => 'project_domain'),
+            array('label' => 'Environment', 'key' => 'project_environment'),
+            array('label' => 'Environment Domains', 'key' => 'project_environment-domains'),
+            array('label' => 'Directory', 'key' => 'project_directory'),
+            array('label' => 'Password', 'key' => 'project_password')
+        ));
+        $this->newt_form('Postgres', '5/6 - Base de donnée', array(
+            array('label' => 'Database Name', 'key' => 'postgres_database_name'),
+            array('label' => 'User', 'key' => 'postgres_user'),
+            array('label' => 'Password', 'key' => 'postgres_password')
+        ));
+        $this->newt_form('Piwik', '6/6 - Base de donnée', array(
+            array('label' => 'Database Password', 'key' => 'piwik_database_password')
+        ));
+    }
+
+    /**
+     * Formulaire
+     *
+     * @param $S_title
+     * @param $S_description
+     * @param $A_questions
+     */
+    public function newt_form($S_title, $S_description, $A_questions, callable $callback = NULL) {
+        $this->clear();
+        newt_init();
+        newt_cls();
+        $entries = array();
+        newt_draw_root_text(0, 0, "WebStaDOckER " . $this->S_version);
+        foreach ($A_questions as $key => $value) {
+            // Parcours la clé (en corrélation avec le tableau de configuration)
+            $A_key_all_names = $this->A_CONFIG;
+            foreach (explode('_', $value['key']) as $key_name) {
+                @$A_key_all_names = $A_key_all_names[$key_name];
+            }
+            $entries[] = array('text' => $value['label'] . " :", 'value' => $A_key_all_names);
+        }
+        $rc = newt_win_entries($S_title, $S_description . ' :', 50, 7, 7, 30, $entries, "Valider", "Annuler");
+        newt_finished();
+        if ($rc != 2) {
+            foreach ($entries as $entrie_key => $entrie_value) {
+                // Parcours la clé (en corrélation avec le tableau de configuration)
+                $A_eval = array();
+                $S_eval = '$this->A_CONFIG';
+                foreach (explode('_', $A_questions[$entrie_key]['key']) as $key_name) {
+                    $S_eval .= '["' . $key_name . '"]';
+                }
+                eval($S_eval . ' = "' . $entrie_value['value'] . '";');
+            }
+        }
+        if (is_callable($callback)) {
+            call_user_func($callback);
+        }
+        $this->write_config();
+    }
+
+    /**
+     * Menu
+     */
+    public function newt_menu() {
+        $this->clear();
+        newt_init();
+        newt_cls();
+        newt_draw_root_text(0, 0, "Test Mode Setup Utility 1.12");
+        newt_push_help_line(NULL);
+        newt_draw_root_text(-30, 0, "(c) 1999-2002 RedHat, Inc");
+        newt_get_screen_size($rows, $cols);
+        newt_open_window($rows / 2 - 17, $cols / 2 - 10, 34, 17, "Choose a Tool");
+        $form = newt_form();
+        $list = newt_listbox(3, 2, 10);
+        foreach (array(
+                     "Authentication configuration",
+                     "Firewall configuration",
+                     "Mouse configuration",
+                     "Network configuration",
+                     "Printer configuration",
+                     "System services") as $l_item) {
+            newt_listbox_add_entry($list, $l_item, $l_item);
+        }
+        $b1 = newt_button(5, 12, "Run Tool");
+        $b2 = newt_button(21, 12, "Quit");
+        newt_form_add_component($form, $list);
+        newt_form_add_components($form, array($b1, $b2));
+        newt_refresh();
+        newt_run_form($form);
+        newt_pop_window();
+        newt_pop_help_line();
+        newt_finished();
+        newt_form_destroy($form);
+    }
 }
 
 // Paths
@@ -643,10 +790,9 @@ $A_PATHS['lib'] = __DIR__;
 $A_PATHS['base'] = $A_PATHS['lib'] . '/..';
 $A_PATHS['docker'] = $A_PATHS['base'] . '/dockerfiles';
 // Require
-require $A_PATHS['base'] . "/config.php";
 require $A_PATHS['lib'] . "/Colors.php";
 // Object
-$O_WebStaDOckER = new WebStaDOckER($A_PATHS, $A_CONFIG, $O_Colors);
+$O_WebStaDOckER = new WebStaDOckER($A_PATHS, $O_Colors);
 // Args spécifique
 if (isset($argv[2]) AND isset($argv[1])) {
     if ($argv[1] == 'go') {
@@ -669,6 +815,9 @@ if (isset($argv[2]) AND isset($argv[1])) {
                 // Start All :
                 $O_WebStaDOckER->run_all_container();
                 break;
+            case 'config' :
+                $O_WebStaDOckER->configuration();
+                break;
             case 'start':
             default:
                 $O_WebStaDOckER->run_all_container();
@@ -686,7 +835,7 @@ if (isset($argv[2]) AND isset($argv[1])) {
                 break;
             case 'help':
                 echo $O_Colors->getColoredString(NULL, "light_green", NULL) . "\n";
-                echo str_replace("    ",NULL,"Exemple d'utilisation (simple) : \n
+                echo str_replace("    ", NULL, "Exemple d'utilisation (simple) : \n
                 \n
                 \twsd [install|start|stop|restart|rebuild|go [container name]|help] \n
                 \n
