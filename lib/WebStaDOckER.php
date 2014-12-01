@@ -188,22 +188,22 @@ class WebStaDOckER {
      * Installer les logiciels sur la machine hôte
      */
     public function install_hote() {
+        // Paquets
+        system('apt-get update && apt-get upgrade -y');
+        system('apt-get install -y -qq --force-yes php5-cli dialog php5-dev php-pear libnewt-dev');
+        system('pecl install newt');
+        system('/bin/bash -c \'echo "extension=newt.so" >> /etc/php5/cli/php.ini\'');
+        $this->configuration();
+        /*if (yesNo('Rendre sudoers l\'utilisateur : ' . $this->A_CONFIG['system']['user'])) {
+            system('apt-get install -y sudo');
+            system('echo ' . $this->A_CONFIG['system']['user'] . ' \'         ALL=(ALL)       PASSWD: ALL\' >> /etc/sudoers;');
+        }*/
         //Création des répertoires
         @mkdir($this->A_PATHS['base'] . '/backups', 0777, TRUE);
         @mkdir($this->A_PATHS['base'] . '/data/logs', 0777, TRUE);
         @mkdir($this->A_PATHS['base'] . '/data/certs', 0777, TRUE);
         @mkdir($this->A_PATHS['base'] . '/data/database', 0777, TRUE);
         @mkdir($this->A_PATHS['base'] . '/data/www/' . $this->A_CONFIG['project']['name'], 0777, TRUE);
-        // Paquets
-        system('apt-get update && apt-get upgrade -y');
-        if (yesNo('Rendre sudoers l\'utilisateur : ' . $this->A_CONFIG['system']['user'])) {
-            system('apt-get install -y sudo');
-            // Todo : sudoers
-            system('echo ' . $this->A_CONFIG['system']['user'] . ' \'         ALL=(ALL)       PASSWD: ALL\' >> /etc/sudoers;');
-        }
-        system('apt-get install -y -qq --force-yes php5-cli dialog php5-dev php-pear libnewt-dev');
-        system('pecl install newt');
-        system('/bin/bash -c \'echo "extension=newt.so" >> /etc/php5/cli/php.ini\'');
         // Outils
         system('apt-get -y update && apt-get -y upgrade');
         system('/bin/bash ' . $this->A_PATHS['lib'] . '/install_docker.sh');

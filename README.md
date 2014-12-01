@@ -45,25 +45,12 @@ Requis
   - Processeur : Architectures 64 bits
   - Debian : Wheezy(7) avec kernel 3.16 ou Jessie(8)
 
-Récupération
---------------
-
-```sh
-mkdir -p ~/mon_projet && cd ~/mon_projet && git clone https://github.com/EvKoh/WebStaDOckER.git
-```
-
 Installation
 --------------
 
-* Copiez le fichier config.sh.dist en config.sh
-* Configurez ce nouveau fichier selon vos besoins
-* Lancez la commande suivante :
-
 ```sh
-bash ~/mon_projet/WebStaDOckER/wsd.sh install
+git clone https://github.com/EvKoh/WebStaDOckER.git ~/mon_projet && bash ~/mon_projet/wsd.sh install
 ```
-
-* ...et laissez-vous guider ;)
 
 Lancer
 --------------
