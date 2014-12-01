@@ -24,16 +24,17 @@ Si vous voulez un serveur avec ces technologies :
 A venir
 -----------
 
-* [piwik] - Piwik (à venir)
-* [sugarcrm] - SugarCRM (à venir)
-* [zimbra] - Zimbra (à venir)
-* [redmine] - Redmine (à venir)
-* [gitlab] - Gitlab (à venir)
+* [piwik] - Piwik (en cours)
+* [gitlab] - Gitlab (en cours)
+
 * [webmin] - Webmin (à venir)
+* [redmine] - Redmine (à venir)
+* [sugarcrm] - SugarCRM (à venir)
 * [phpdocumentor] - phpDocumentor (à venir)
 * [goaccess] - GoAccess (à venir)
 * [munin] - munin (à venir)
 * [readthedoc] - readthedoc (à venir)
+* [zimbra] - Zimbra (à venir)
 
 Requis
 =========
@@ -48,7 +49,7 @@ Installation
 --------------
 
 ```sh
-git clone https://github.com/EvKoh/WebStaDOckER.git ~/mon_projet && bash ~/mon_projet/wsd.sh install
+git clone https://github.com/EvKoh/WebStaDOckER.git ~/mon_projet && /bin/bash ~/mon_projet/wsd.sh install
 ```
 
 Lancer
@@ -89,7 +90,7 @@ Quel que soit l'environnement, le script vous proposera d'installer sur la machi
 Version
 ----
 
-**1.3**
+**1.4**
 
 A venir
 -----------

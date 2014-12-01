@@ -14,8 +14,9 @@ class WebStaDOckER {
      *
      * @param $A_PATHS
      * @param $O_Colors
+     * @param $argv
      */
-    public function __construct($A_PATHS, $O_Colors) {
+    public function __construct($A_PATHS, $O_Colors, $argv) {
         $this->clear();
         $this->A_PATHS = $A_PATHS;
         $this->A_CONFIG = json_decode(file_get_contents($A_PATHS['lib'] . "/config.json"), TRUE);
@@ -23,6 +24,66 @@ class WebStaDOckER {
         self::asciiArt();
         system('echo "alias wsd=\'bash ' . $this->A_PATHS['base'] . '/wsd.sh\'" >> /etc/profile');
         system('/bin/bash -c "source /etc/profile";');
+        // Args spécifique
+        if (isset($argv[2]) AND isset($argv[1])) {
+            if ($argv[1] == 'go') {
+                $this->go($argv[2]);
+            } else {
+                $dynamicFunction = $argv[1] . '_' . $argv[2]; // Example : restart postgres
+                $this->{$dynamicFunction}();
+            }
+        } else {
+            // Args générique
+            if (isset($argv[1])) {
+                switch ($argv[1]) {
+                    case 'install' :
+                        $this->install_hote();
+                        // Clone project
+                        $this->get_project(TRUE);
+                        // Build All :
+                        $this->stop_all_containers(TRUE);
+                        $this->build_all_images();
+                        // Start All :
+                        $this->run_all_container();
+                        break;
+                    case 'config' :
+                        $this->configuration();
+                        break;
+                    case 'start':
+                    default:
+                        $this->run_all_container();
+                        break;
+                    case 'stop':
+                        $this->stop_all_containers();
+                        break;
+                    case 'restart':
+                        $this->stop_all_containers();
+                        $this->run_all_container();
+                        break;
+                    case 'rebuild':
+                        $this->stop_all_containers(TRUE);
+                        $this->build_all_images();
+                        break;
+                    case 'help':
+                        echo $O_Colors->getColoredString(NULL, "light_green", NULL) . "\n";
+                        echo str_replace("    ", NULL, "Exemple d'utilisation (simple) : \n
+                            \n
+                            \twsd [install|start|stop|restart|rebuild|go [container name]|help] \n
+                            \n
+                            Exemple d'utilisation (pour un conteneur spécifique) : \n
+                            \n
+                            \twsd build postgres \n
+                            \twsd run postgres \n
+                            \twsd go webstack_postgres_1 \n
+                            \n\n");
+                        if ($this->yesNo('Afficher également le résumé de votre infrastructure ?')) {
+                            echo $this->resume();
+                        }
+                        echo $O_Colors->getColoredString(NULL, "light_blue", NULL);
+                        break;
+                }
+            }
+        }
     }
 
     /**
@@ -102,7 +163,7 @@ class WebStaDOckER {
     public function asciiArt() {
         echo $this->O_Colors->getColoredString(NULL, "yellow", NULL) . "\n";
         echo "##################################################################################\n";
-        echo "#####                              WebStaDOckER                              #####\n";
+        echo "#####                          WebStaDOckER ".$this->S_version."                              #####\n";
         echo "##################################################################################\n";
         echo $this->O_Colors->getColoredString(NULL, "light_blue", NULL) . "\n";
         echo "
@@ -168,11 +229,11 @@ class WebStaDOckER {
     public function install_hote() {
         // Paquets
         system('apt-get update && apt-get upgrade -y');
-        if(system('php -m | grep newt') != 'newt'){
+        if (system('php -m | grep newt') != 'newt') {
             system('apt-get install -y -qq --force-yes php5-dev php-pear libnewt-dev');
             system('pecl install newt');
             system('/bin/bash -c \'echo "extension=newt.so" >> /etc/php5/cli/php.ini\'');
-            passthru('/bin/bash '.$this->A_PATHS['base'].'/wsd.sh install');
+            passthru('/bin/bash ' . $this->A_PATHS['base'] . '/wsd.sh install');
         }
         $this->configuration();
         /*if ($this->yesNo('Rendre sudoers l\'utilisateur : ' . $this->A_CONFIG['system']['user'])) {
@@ -204,6 +265,7 @@ class WebStaDOckER {
         $this->build_composer();
         $this->build_nodejs_bower_grunt();
         $this->build_piwik();
+        $this->build_gitlab();
         system('docker images');
         $this->run_all_container();
     }
@@ -212,6 +274,11 @@ class WebStaDOckER {
      * Permet de construire une image Postgres SQL
      */
     public function build_postgres() {
+        while (!file_exists($this->A_PATHS['docker'] . '/postgres/require/dbexport.pgsql')) {
+            echo 'Impossible de poursuivre l\'installation !'."\n";
+            echo 'Veuillez déposer votre dump postgres ici : ' . $this->A_PATHS['docker'] . '/postgres/require/dbexport.pgsql';
+            $this->sleep();
+        }
         $this->delete_image('wsd_postgres');
         // Certificats
         $cd = 'cd ' . $this->A_PATHS['base'] . '/data/certs && ';
@@ -306,12 +373,12 @@ class WebStaDOckER {
     public function build_nginx() {
         $this->delete_image('wsd_nginx');
         // vhosts
-        system('echo "127.0.0.1   ' . $this->A_CONFIG['project']['environment_domains'] . '" >> /etc/hosts');
+        system('echo "127.0.0.1   ' . $this->A_CONFIG['project']['environment-domains'] . '" >> /etc/hosts');
         copy($this->A_PATHS['docker'] . '/nginx/require/sites-available/example', $this->A_PATHS['docker'] . '/nginx/require/sites-enabled/' . $this->A_CONFIG['project']['name']);
         $this->multiple_replace_in_file($this->A_PATHS['docker'] . '/nginx/require/sites-enabled/' . $this->A_CONFIG['project']['name'], array(
             'wsd_project_name' => $this->A_CONFIG['project']['name'],
             'wsd_project_domain' => $this->A_CONFIG['project']['domain'],
-            'wsd_project_environment_domains' => $this->A_CONFIG['project']['environment_domains'],
+            'wsd_project_environment-domains' => $this->A_CONFIG['project']['environment-domains'],
             'wsd_project_environment' => $this->A_CONFIG['project']['environment'],
         ));
         // htpasswd
@@ -320,6 +387,15 @@ class WebStaDOckER {
             $this->write_file('nginx/require/htpasswds/' . $this->A_CONFIG['project']['name'], 'htpasswd', 'wsd:' . $S_encrypted_password);
         }
         system('docker build -t wsd_nginx ' . $this->A_PATHS['docker'] . '/nginx/.');
+    }
+
+    /**
+     * Permet de construire l'image Gitlab
+     */
+    public function build_gitlab() {
+        $this->delete_image('wsd_gitlab');
+
+        system('docker build -t wsd_gitlab ' . $this->A_PATHS['docker'] . '/gitlab/.');
     }
 
     /**
@@ -336,6 +412,7 @@ class WebStaDOckER {
         $this->run_composer();
         $this->run_nodejs_bower_grunt('update');
         $this->run_piwik();
+        //$this->run_gitlab();
         $this->resume();
     }
 
@@ -466,6 +543,21 @@ class WebStaDOckER {
                 --dns=172.17.42.1 \
                 -d wsd_nginx;');
         system('docker logs webstack_nginx_1');
+    }
+
+    /**
+     * Permet de lancer Gitlab
+     */
+    public function run_gitlab() {
+        $this->delete_container('webstack_gitlab_1');
+        system('docker run \
+                --name webstack_gitlab_1 \
+                -t \
+                -i \
+                -p 1459:80 \
+                --dns=172.17.42.1 \
+                -d wsd_gitlab;');
+        system('docker logs webstack_gitlab_1');
     }
 
     /**
@@ -627,6 +719,10 @@ class WebStaDOckER {
         \tPiwik : http://piwik." . $this->A_CONFIG['project']['domain'] . ":4578/
         \t\t-user : admin
         \t\t-password : admin
+        \n
+        \tGitlab : http://gitlab." . $this->A_CONFIG['project']['domain'] . ":1459/
+        \t\t-user : root
+        \t\t-password : 5iveL!fe
         \n\n\n");
     }
 
@@ -656,16 +752,16 @@ class WebStaDOckER {
             switch ($this->A_CONFIG['project']['environment']) {
                 case 'development':
                 default:
-                    $this->A_CONFIG['project']['environment_domains'] = 'local.development.' . $this->A_CONFIG['project']['domain'];
+                    $this->A_CONFIG['project']['environment-domains'] = 'local.development.' . $this->A_CONFIG['project']['domain'];
                     break;
                 case 'test':
-                    $this->A_CONFIG['project']['environment_domains'] = 'test.' . $this->A_CONFIG['project']['domain'];
+                    $this->A_CONFIG['project']['environment-domains'] = 'test.' . $this->A_CONFIG['project']['domain'];
                     break;
                 case 'staging':
-                    $this->A_CONFIG['project']['environment_domains'] = 'staging.' . $this->A_CONFIG['project']['domain'];
+                    $this->A_CONFIG['project']['environment-domains'] = 'staging.' . $this->A_CONFIG['project']['domain'];
                     break;
                 case 'production':
-                    $this->A_CONFIG['project']['environment_domains'] = $this->A_CONFIG['project']['domain'];
+                    $this->A_CONFIG['project']['environment-domains'] = $this->A_CONFIG['project']['domain'];
                     break;
             }
             $this->A_CONFIG['project']['directory'] = $this->A_PATHS['base'] . '/data/www/' . $this->A_CONFIG['project']['name'];
@@ -752,6 +848,17 @@ class WebStaDOckER {
 
         return TRUE;
     }
+
+    /**
+     * Faire patienter 3 secondes
+     */
+    public function sleep() {
+        echo "\n";
+        for ($i = 0; $i < 3; $i++) {
+            system('sleep 1');
+            echo "...\n";
+        }
+    }
 }
 
 // Paths
@@ -761,64 +868,4 @@ $A_PATHS['docker'] = $A_PATHS['base'] . '/dockerfiles';
 // Require
 require $A_PATHS['lib'] . "/Colors.php";
 // Object
-$O_WebStaDOckER = new WebStaDOckER($A_PATHS, $O_Colors);
-// Args spécifique
-if (isset($argv[2]) AND isset($argv[1])) {
-    if ($argv[1] == 'go') {
-        $O_WebStaDOckER->go($argv[2]);
-    } else {
-        $dynamicFunction = $argv[1] . '_' . $argv[2]; // Example : restart postgres
-        $O_WebStaDOckER->{$dynamicFunction}();
-    }
-} else {
-    // Args générique
-    if (isset($argv[1])) {
-        switch ($argv[1]) {
-            case 'install' :
-                $O_WebStaDOckER->install_hote();
-                // Clone project
-                $O_WebStaDOckER->get_project(TRUE);
-                // Build All :
-                $O_WebStaDOckER->stop_all_containers(TRUE);
-                $O_WebStaDOckER->build_all_images();
-                // Start All :
-                $O_WebStaDOckER->run_all_container();
-                break;
-            case 'config' :
-                $O_WebStaDOckER->configuration();
-                break;
-            case 'start':
-            default:
-                $O_WebStaDOckER->run_all_container();
-                break;
-            case 'stop':
-                $O_WebStaDOckER->stop_all_containers();
-                break;
-            case 'restart':
-                $O_WebStaDOckER->stop_all_containers();
-                $O_WebStaDOckER->run_all_container();
-                break;
-            case 'rebuild':
-                $O_WebStaDOckER->stop_all_containers(TRUE);
-                $O_WebStaDOckER->build_all_images();
-                break;
-            case 'help':
-                echo $O_Colors->getColoredString(NULL, "light_green", NULL) . "\n";
-                echo str_replace("    ", NULL, "Exemple d'utilisation (simple) : \n
-                \n
-                \twsd [install|start|stop|restart|rebuild|go [container name]|help] \n
-                \n
-                Exemple d'utilisation (pour un conteneur spécifique) : \n
-                \n
-                \twsd build postgres \n
-                \twsd run postgres \n
-                \twsd go webstack_postgres_1 \n
-                \n\n");
-                if ($O_WebStaDOckER->yesNo('Afficher également le résumé de votre infrastructure ?')) {
-                    echo $O_WebStaDOckER->resume();
-                }
-                echo $O_Colors->getColoredString(NULL, "light_blue", NULL);
-                break;
-        }
-    }
-}
+$O_WebStaDOckER = new WebStaDOckER($A_PATHS, $O_Colors, $argv);
