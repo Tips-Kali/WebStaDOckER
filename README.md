@@ -8,7 +8,7 @@ Technologies
 
 Si vous voulez un serveur avec ces technologies :
 
-* [postgresql] - PostgreSQL + PostGis ( avec dump de votre .pgsql )
+* [postgresql] - PostgreSQL + PostGis ( avec restauration de votre dump .pgsql )
 * [memcache] - Memcache
 * [nodejs] - NodeJS : Grunt + Bower
 * [varnish] - Varnish
@@ -21,16 +21,12 @@ Si vous voulez un serveur avec ces technologies :
 
 * [zendserverdevelopperedition] - ZendServer7 Developper Edition (NGINX php 5.5) (à venir)
 
-En Option
+A venir
 -----------
 
 * [piwik] - Piwik (à venir)
 * [sugarcrm] - SugarCRM (à venir)
 * [zimbra] - Zimbra (à venir)
-
-Options futures
------------
-
 * [redmine] - Redmine (à venir)
 * [gitlab] - Gitlab (à venir)
 * [webmin] - Webmin (à venir)
