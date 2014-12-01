@@ -43,7 +43,10 @@ Requis
 =========
 
   - Processeur : Architectures 64 bits
-  - Debian : Wheezy(7) avec kernel 3.16 ou Jessie(8)
+  - OS : Linux avec kernel 3.16 minimum
+  - Gestionnaire de paquet : APT
+  
+  Testé sur Debian 8 (Jessie)
 
 Installation
 --------------

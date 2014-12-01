@@ -32,7 +32,7 @@ fi
 # Installation de NeoVIM
 echo "Installer NeoVIM [yes/no] ?" && read REPLY && if [ "$REPLY" == "yes" ]; then
     cd ~;
-    apt-get install libtool autoconf automake cmake libncurses5-dev g++ pkg-config;
+    apt-get install libtool autoconf automake cmake libncurses5-dev g++ pkg-config curl;
     wget https://github.com/neovim/neovim/archive/master.zip -O neovim.zip;
     unzip neovim.zip;
     cd neovim-master;
@@ -62,8 +62,8 @@ echo "Installer NeoVIM [yes/no] ?" && read REPLY && if [ "$REPLY" == "yes" ]; th
     cd ~/.nvim/bundle && git clone https://github.com/morhetz/gruvbox.git;
     echo 'colorscheme gruvbox' >> ~/.nvimrc;
 
-    # Désinstallation de nano
-    apt-get -y remove nano vim;
+    # Désinstallation de nano, vim et vi
+    apt-get -y remove nano vim vi;
 fi
 
 # Installation de Glances

@@ -1,28 +1,6 @@
 <?php
 
 /**
- * Yes / No Question
- *
- * @param $S_question
- *
- * @return bool
- */
-function yesNo($S_question) {
-    echo $S_question . " [yes/no], [y/n], [oui/non] ou [o/n]: ";
-    $handle = fopen("php://stdin", "r");
-    $line = strtolower(trim(fgets($handle)));
-    if ($line != 'yes' AND $line != 'y' AND $line != 'oui' AND $line != 'o') {
-        echo "Ok, next !\n";
-
-        return FALSE;
-    }
-    echo "\n";
-    echo "Thank you, continuing...\n";
-
-    return TRUE;
-}
-
-/**
  * Class WebStaDOckER
  */
 class WebStaDOckER {
@@ -190,11 +168,14 @@ class WebStaDOckER {
     public function install_hote() {
         // Paquets
         system('apt-get update && apt-get upgrade -y');
-        system('apt-get install -y -qq --force-yes php5-cli dialog php5-dev php-pear libnewt-dev');
-        system('pecl install newt');
-        system('/bin/bash -c \'echo "extension=newt.so" >> /etc/php5/cli/php.ini\'');
+        if(system('php -m | grep newt') != 'newt'){
+            system('apt-get install -y -qq --force-yes php5-dev php-pear libnewt-dev');
+            system('pecl install newt');
+            system('/bin/bash -c \'echo "extension=newt.so" >> /etc/php5/cli/php.ini\'');
+            passthru('/bin/bash '.$this->A_PATHS['base'].'/wsd.sh install');
+        }
         $this->configuration();
-        /*if (yesNo('Rendre sudoers l\'utilisateur : ' . $this->A_CONFIG['system']['user'])) {
+        /*if ($this->yesNo('Rendre sudoers l\'utilisateur : ' . $this->A_CONFIG['system']['user'])) {
             system('apt-get install -y sudo');
             system('echo ' . $this->A_CONFIG['system']['user'] . ' \'         ALL=(ALL)       PASSWD: ALL\' >> /etc/sudoers;');
         }*/
@@ -674,6 +655,7 @@ class WebStaDOckER {
             $this->A_CONFIG['project']['domain'] = $this->A_CONFIG['project']['name'] . '.com';
             switch ($this->A_CONFIG['project']['environment']) {
                 case 'development':
+                default:
                     $this->A_CONFIG['project']['environment_domains'] = 'local.development.' . $this->A_CONFIG['project']['domain'];
                     break;
                 case 'test':
@@ -748,6 +730,28 @@ class WebStaDOckER {
         }
         $this->write_config();
     }
+
+    /**
+     * Yes / No Question
+     *
+     * @param $S_question
+     *
+     * @return bool
+     */
+    public function yesNo($S_question) {
+        echo $S_question . " [yes/no], [y/n], [oui/non] ou [o/n]: ";
+        $handle = fopen("php://stdin", "r");
+        $line = strtolower(trim(fgets($handle)));
+        if ($line != 'yes' AND $line != 'y' AND $line != 'oui' AND $line != 'o') {
+            echo "Ok, next !\n";
+
+            return FALSE;
+        }
+        echo "\n";
+        echo "Thank you, continuing...\n";
+
+        return TRUE;
+    }
 }
 
 // Paths
@@ -810,7 +814,7 @@ if (isset($argv[2]) AND isset($argv[1])) {
                 \twsd run postgres \n
                 \twsd go webstack_postgres_1 \n
                 \n\n");
-                if (yesNo('Afficher également le résumé de votre infrastructure ?')) {
+                if ($O_WebStaDOckER->yesNo('Afficher également le résumé de votre infrastructure ?')) {
                     echo $O_WebStaDOckER->resume();
                 }
                 echo $O_Colors->getColoredString(NULL, "light_blue", NULL);
